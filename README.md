@@ -83,7 +83,7 @@ python main.py [URLs...] --browser chrome --browser-profile "Default" --output-r
 ## Supported platforms
 
 - **JPoint** (jpoint.ru)
-- **Heisenbug** (heisenbug.ru) 
+- **Heisenbug** (heisenbug.ru)
 - **HolyJS** (holyjs.ru)
 - **Mobius** (mobiusconf.com)
 - Other sites with HLS/DASH streams
