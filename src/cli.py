@@ -26,7 +26,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         nargs="*",
         help=(
             "List of URLs and/or paths to text files with URLs (one per line). "
-            "Files are detected by existing paths. If not provided, uses links_file from config."
+            "Files are detected by existing paths. If not provided, "
+            "uses links_file from config."
         ),
     )
     parser.add_argument(
@@ -75,44 +76,47 @@ def resolve_urls(inputs: list[str]) -> list[str]:
 def main(argv: Optional[list[str]] = None) -> None:
     """Main CLI function."""
     args = parse_args(sys.argv[1:] if argv is None else argv)
-    
+
     # Configure logging
     log_level = logging.DEBUG if args.verbose else logging.INFO
     configure_logging(log_level)
-    
+
     logger.info("START cli_main")
-    
+
     try:
         # Load configuration
         config_path = Path(args.config)
         project_root = Path.cwd()
-        
+
         if config_path.exists():
             config = Config.from_toml(config_path, project_root)
         else:
-            logger.info("Config file not found, using defaults", extra={"path": str(config_path)})
+            logger.info(
+                "Config file not found, using defaults",
+                extra={"path": str(config_path)},
+            )
             config = Config(
                 browser=args.browser,
                 browser_profile=args.browser_profile,
                 output_root=Path(args.output_root),
             )
-        
+
         # Validate configuration
         config.validate()
-        
+
         # Resolve URLs
         if args.inputs:
             urls = resolve_urls(args.inputs)
         else:
             # Use links file from configuration
             urls = read_links_file(config.links_file)
-            
+
         valid_urls = validate_urls(urls)
-        
+
         if not valid_urls:
             logger.info("No valid URLs to download")
             return
-        
+
         logger.info(
             "Starting downloads",
             extra={
@@ -122,18 +126,18 @@ def main(argv: Optional[list[str]] = None) -> None:
                 "count": len(valid_urls),
             },
         )
-        
+
         # Download
         downloader = VideoDownloader(
             browser=config.browser,
             browser_profile=config.browser_profile,
             cookies_file=config.cookies_file,
         )
-        
+
         downloader.download_videos(valid_urls, config.output_root)
-        
+
         logger.info("DONE cli_main")
-        
+
     except Exception as e:
         logger.exception("FAIL cli_main", extra={"error": str(e)})
         sys.exit(1)

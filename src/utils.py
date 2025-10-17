@@ -10,10 +10,12 @@ logger = logging.getLogger(__name__)
 def read_links_file(path: Path) -> list[str]:
     """Read links file."""
     if not path.exists():
-        logger.info("Links file not found, creating template", extra={"path": str(path)})
+        logger.info(
+            "Links file not found, creating template", extra={"path": str(path)}
+        )
         path.write_text("# Add your URLs here, one per line\n", encoding="utf-8")
         return []
-    
+
     lines = path.read_text(encoding="utf-8").splitlines()
     return [
         line.strip()
