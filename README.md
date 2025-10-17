@@ -42,9 +42,6 @@ output_root = "downloads"
 
 # File with links (one URL per line)
 links_file = "links.txt"
-
-# Optional: path to cookies.txt (Netscape format)
-# cookies_file = "cookies.txt"
 ```
 
 ## Usage
@@ -132,7 +129,7 @@ video_downloader/
 ### Cookie issues
 - Make sure you're logged in to Chrome on the target site
 - Check the Chrome profile correctness in `config.toml`
-- Try exporting cookies via "Get cookies.txt" extension
+- Ensure Chrome profile has access to the target site
 
 ### DRM issues
 - The tool automatically switches to official download

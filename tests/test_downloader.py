@@ -36,33 +36,27 @@ def test_ensure_output_dir_unknown_domain(mock_playwright: Mock) -> None:
 
 
 @patch("src.downloader.PlaywrightCapture")
-def test_build_ydl_opts_with_cookies_file(mock_playwright: Mock) -> None:
-    """Test building yt-dlp options with cookies file."""
-    with tempfile.NamedTemporaryFile() as f:
-        cookies_file = Path(f.name)
-        cookies_file.write_text("test cookies")
+def test_build_ydl_opts_with_profile(mock_playwright: Mock) -> None:
+    """Test building yt-dlp options with Chrome profile."""
+    downloader = VideoDownloader(browser_profile="Test Profile")
 
-        downloader = VideoDownloader(cookies_file=cookies_file)
+    with tempfile.TemporaryDirectory() as temp_dir:
+        output_dir = Path(temp_dir)
+        opts = downloader._build_ydl_opts(output_dir, "https://example.com/video")
 
-        with tempfile.TemporaryDirectory() as temp_dir:
-            output_dir = Path(temp_dir)
-            opts = downloader._build_ydl_opts(output_dir, "https://example.com/video")
-
-            assert "cookiefile" in opts
-            assert opts["cookiefile"] == str(cookies_file)
-            assert "cookiesfrombrowser" not in opts
+        assert "cookiesfrombrowser" in opts
+        assert opts["cookiesfrombrowser"][0] == "chrome"
 
 
 @patch("src.downloader.PlaywrightCapture")
-def test_build_ydl_opts_without_cookies_file(mock_playwright: Mock) -> None:
-    """Test building yt-dlp options without cookies file."""
+def test_build_ydl_opts_without_profile(mock_playwright: Mock) -> None:
+    """Test building yt-dlp options without profile (default Chrome)."""
     downloader = VideoDownloader()
 
     with tempfile.TemporaryDirectory() as temp_dir:
         output_dir = Path(temp_dir)
         opts = downloader._build_ydl_opts(output_dir, "https://example.com/video")
 
-        assert "cookiefile" not in opts
         assert "cookiesfrombrowser" in opts
         assert opts["cookiesfrombrowser"][0] == "chrome"
 

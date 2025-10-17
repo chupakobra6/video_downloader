@@ -123,7 +123,6 @@ def main(argv: Optional[list[str]] = None) -> None:
         # Download
         downloader = VideoDownloader(
             browser_profile=config.browser_profile,
-            cookies_file=config.cookies_file,
         )
 
         downloader.download_videos(valid_urls, config.output_root)

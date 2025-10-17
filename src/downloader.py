@@ -22,10 +22,8 @@ class VideoDownloader:
     def __init__(
         self,
         browser_profile: Optional[str] = None,
-        cookies_file: Optional[Path] = None,
     ) -> None:
         self.browser_profile: Optional[str] = browser_profile
-        self.cookies_file: Optional[Path] = cookies_file
         self.profile_manager: BrowserProfileManager = BrowserProfileManager()
         self.file_manager: FileManager = FileManager()
         self.playwright_capture: PlaywrightCapture = PlaywrightCapture()
@@ -75,34 +73,30 @@ class VideoDownloader:
             "check_formats": True,
         }
 
-        # Configure cookies
-        if self.cookies_file and self.cookies_file.exists():
-            ydl_opts["cookiefile"] = str(self.cookies_file)
-            logger.info("Using cookies file", extra={"path": str(self.cookies_file)})
+        # Configure cookies from Chrome profile
+        resolved_profile: Optional[str] = self.profile_manager.find_profile_name(
+            self.browser_profile
+        )
+        if resolved_profile is None:
+            logger.info("Using default Chrome profile")
+            ydl_opts["cookiesfrombrowser"] = ("chrome", None, None, None)
         else:
-            resolved_profile: Optional[str] = self.profile_manager.find_profile_name(
-                self.browser_profile
+            profile_info: dict[
+                str, Optional[str]
+            ] = self.profile_manager.get_profile_info(resolved_profile)
+            logger.info(
+                "Using Chrome profile",
+                extra={
+                    "profile": resolved_profile,
+                    "display_name": profile_info["display_name"],
+                },
             )
-            if resolved_profile is None:
-                logger.info("Using default Chrome profile")
-                ydl_opts["cookiesfrombrowser"] = ("chrome", None, None, None)
-            else:
-                profile_info: dict[
-                    str, Optional[str]
-                ] = self.profile_manager.get_profile_info(resolved_profile)
-                logger.info(
-                    "Using Chrome profile",
-                    extra={
-                        "profile": resolved_profile,
-                        "display_name": profile_info["display_name"],
-                    },
-                )
-                ydl_opts["cookiesfrombrowser"] = (
-                    "chrome",
-                    resolved_profile,
-                    None,
-                    None,
-                )
+            ydl_opts["cookiesfrombrowser"] = (
+                "chrome",
+                resolved_profile,
+                None,
+                None,
+            )
 
         return ydl_opts
 
