@@ -1,4 +1,4 @@
-"""Конфигурация и валидация параметров."""
+"""Configuration and parameter validation."""
 
 import logging
 from pathlib import Path
@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class Config:
-    """Конфигурация приложения с валидацией."""
+    """Application configuration with validation."""
     
     def __init__(
         self,
@@ -28,7 +28,7 @@ class Config:
         
     @classmethod
     def from_toml(cls, config_path: Path, project_root: Path) -> "Config":
-        """Загрузить конфигурацию из TOML файла."""
+        """Load configuration from TOML file."""
         try:
             with config_path.open("rb") as f:
                 cfg = tomllib.load(f)
@@ -42,7 +42,7 @@ class Config:
         links_file = cfg.get("links_file", "links.txt")
         cookies_file_cfg = cfg.get("cookies_file")
         
-        # Обработка путей
+        # Handle paths
         cookies_file: Optional[Path] = None
         if cookies_file_cfg:
             cookies_file = (
@@ -66,7 +66,7 @@ class Config:
         )
     
     def validate(self) -> None:
-        """Валидировать конфигурацию."""
+        """Validate configuration."""
         valid_browsers = {"chrome", "brave", "edge", "chromium", "safari"}
         if self.browser not in valid_browsers:
             raise ValueError(f"Invalid browser: {self.browser}. Must be one of {valid_browsers}")

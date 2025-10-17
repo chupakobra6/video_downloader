@@ -1,4 +1,4 @@
-"""Тесты для утилит."""
+"""Tests for utilities."""
 
 import tempfile
 from pathlib import Path
@@ -8,13 +8,13 @@ from src.utils import read_links_file, validate_urls
 
 
 def test_read_links_file_existing():
-    """Тест чтения существующего файла с ссылками."""
+    """Test reading existing links file."""
     content = """
-# Комментарий
+# Comment
 https://example.com/video1
 https://example.com/video2
 
-# Еще комментарий
+# Another comment
 https://example.com/video3
 """
     
@@ -35,21 +35,21 @@ https://example.com/video3
 
 
 def test_read_links_file_nonexistent():
-    """Тест чтения несуществующего файла с ссылками."""
+    """Test reading non-existent links file."""
     with tempfile.TemporaryDirectory() as tmpdir:
         links_path = Path(tmpdir) / "nonexistent.txt"
         
         links = read_links_file(links_path)
         assert links == []
         
-        # Проверяем, что создался шаблонный файл
+        # Check that template file was created
         assert links_path.exists()
         content = links_path.read_text(encoding="utf-8")
         assert "# Add your URLs here, one per line" in content
 
 
 def test_read_links_file_empty():
-    """Тест чтения пустого файла с ссылками."""
+    """Test reading empty links file."""
     with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
         f.write("")
         f.flush()
@@ -62,10 +62,10 @@ def test_read_links_file_empty():
 
 
 def test_read_links_file_only_comments():
-    """Тест чтения файла только с комментариями."""
+    """Test reading file with only comments."""
     content = """
-# Только комментарии
-# Без ссылок
+# Only comments
+# No links
 """
     
     with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
@@ -80,7 +80,7 @@ def test_read_links_file_only_comments():
 
 
 def test_validate_urls_valid():
-    """Тест валидации валидных URL."""
+    """Test validation of valid URLs."""
     urls = [
         "https://example.com/video1",
         "http://example.com/video2",
@@ -92,14 +92,14 @@ def test_validate_urls_valid():
 
 
 def test_validate_urls_invalid():
-    """Тест валидации невалидных URL."""
+    """Test validation of invalid URLs."""
     urls = [
-        "https://example.com/video1",  # валидный
-        "ftp://example.com/video2",   # невалидный
-        "not-a-url",                   # невалидный
-        "http://example.com/video3",   # валидный
-        "",                            # пустой
-        "   ",                         # только пробелы
+        "https://example.com/video1",  # valid
+        "ftp://example.com/video2",   # invalid
+        "not-a-url",                   # invalid
+        "http://example.com/video3",   # valid
+        "",                            # empty
+        "   ",                         # only spaces
     ]
     
     valid_urls = validate_urls(urls)
@@ -111,14 +111,14 @@ def test_validate_urls_invalid():
 
 
 def test_validate_urls_empty():
-    """Тест валидации пустого списка URL."""
+    """Test validation of empty URL list."""
     urls = []
     valid_urls = validate_urls(urls)
     assert valid_urls == []
 
 
 def test_validate_urls_with_whitespace():
-    """Тест валидации URL с пробелами."""
+    """Test validation of URLs with spaces."""
     urls = [
         "  https://example.com/video1  ",
         "https://example.com/video2",

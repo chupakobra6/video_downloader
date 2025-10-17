@@ -1,4 +1,4 @@
-"""Управление браузерными профилями и куки."""
+"""Browser profile and cookie management."""
 
 import json
 import logging
@@ -10,14 +10,14 @@ logger = logging.getLogger(__name__)
 
 
 class BrowserProfileManager:
-    """Менеджер браузерных профилей для извлечения куки."""
+    """Browser profile manager for cookie extraction."""
     
     def __init__(self, browser: str):
         self.browser = browser
         self._base_path = self._get_chrome_like_base()
         
     def _get_chrome_like_base(self) -> Optional[Path]:
-        """Получить базовый путь к профилям браузера."""
+        """Get base path to browser profiles."""
         base: Optional[Path] = None
         match sys.platform:
             case "darwin":
@@ -43,7 +43,7 @@ class BrowserProfileManager:
         return base if base and base.exists() else None
     
     def _has_cookies(self, dir_name: str) -> bool:
-        """Проверить наличие куки в профиле."""
+        """Check for cookies in profile."""
         if not self._base_path:
             return False
         profile_dir = self._base_path / dir_name
@@ -71,7 +71,7 @@ class BrowserProfileManager:
         return has_cookies
     
     def _map_display_name_to_profile_dir(self, display_name: str) -> Optional[str]:
-        """Сопоставить отображаемое имя профиля с директорией."""
+        """Map display name to profile directory."""
         if not self._base_path:
             return None
             
@@ -98,7 +98,7 @@ class BrowserProfileManager:
                 except Exception:
                     continue
                     
-            # Логируем доступные профили для помощи пользователю
+            # Log available profiles to help user
             if info_cache:
                 candidates = [
                     f"{dir_name} -> name='{meta.get('name', '')}', gaia='{meta.get('gaia_name', '')}'"
@@ -113,7 +113,7 @@ class BrowserProfileManager:
         return None
     
     def _get_display_name_for_dir(self, dir_name: str) -> Optional[str]:
-        """Получить отображаемое имя для директории профиля."""
+        """Get display name for profile directory."""
         if not self._base_path:
             return None
             
@@ -139,7 +139,7 @@ class BrowserProfileManager:
         return None
     
     def find_profile_name(self, requested_profile: Optional[str]) -> Optional[str]:
-        """Найти имя профиля для использования."""
+        """Find profile name for use."""
         logger.info(
             "Finding profile name",
             extra={
@@ -153,7 +153,7 @@ class BrowserProfileManager:
             logger.info("No base path found, returning requested profile", extra={"profile": requested_profile})
             return requested_profile
             
-        # Если указан профиль, попробуем прямой путь, затем сопоставление по имени
+        # If profile specified, try direct path, then name mapping
         if requested_profile:
             if self._has_cookies(requested_profile):
                 logger.info("Found direct profile match", extra={"profile": requested_profile})
@@ -164,7 +164,7 @@ class BrowserProfileManager:
                 logger.info("Found mapped profile", extra={"requested": requested_profile, "mapped": mapped})
                 return mapped
         
-        # Fallback к стандартным профилям
+        # Fallback to standard profiles
         for candidate in ["Default", "Profile 1", "Profile 2", "Profile 3"]:
             if self._has_cookies(candidate):
                 logger.info("Found fallback profile", extra={"profile": candidate})
@@ -174,7 +174,7 @@ class BrowserProfileManager:
         return None
     
     def get_profile_info(self, profile_name: Optional[str]) -> dict:
-        """Получить информацию о профиле."""
+        """Get profile information."""
         if not profile_name:
             return {"name": "default", "display_name": None}
             

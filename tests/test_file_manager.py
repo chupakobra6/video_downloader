@@ -1,4 +1,4 @@
-"""Тесты для модуля управления файлами."""
+"""Tests for file management module."""
 
 import tempfile
 from pathlib import Path
@@ -8,13 +8,13 @@ from src.file_manager import FileManager
 
 
 def test_file_manager_init():
-    """Тест инициализации FileManager."""
+    """Test FileManager initialization."""
     fm = FileManager()
     assert fm is not None
 
 
 def test_get_partial_paths():
-    """Тест получения путей к частичным файлам."""
+    """Test getting paths to partial files."""
     fm = FileManager()
     test_path = Path("/tmp/test.mp4")
     partials = fm._get_partial_paths(test_path)
@@ -31,7 +31,7 @@ def test_get_partial_paths():
 
 
 def test_should_skip_download_no_file():
-    """Тест проверки пропуска скачивания - файл не существует."""
+    """Test skip download check - file does not exist."""
     fm = FileManager()
     test_path = Path("/tmp/nonexistent.mp4")
     
@@ -39,7 +39,7 @@ def test_should_skip_download_no_file():
 
 
 def test_should_skip_download_existing_file():
-    """Тест проверки пропуска скачивания - файл существует."""
+    """Test skip download check - file exists."""
     fm = FileManager()
     
     with tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as f:
@@ -52,35 +52,35 @@ def test_should_skip_download_existing_file():
 
 
 def test_remove_partials():
-    """Тест удаления частичных файлов."""
+    """Test removal of partial files."""
     fm = FileManager()
     
     with tempfile.TemporaryDirectory() as tmpdir:
         base_path = Path(tmpdir) / "test.mp4"
         
-        # Создаем частичные файлы
+        # Create partial files
         partial_paths = fm._get_partial_paths(base_path)
         for partial_path in partial_paths:
             partial_path.write_text("test content")
             assert partial_path.exists()
         
-        # Удаляем частичные файлы
+        # Remove partial files
         fm._remove_partials(base_path)
         
-        # Проверяем, что они удалены
+        # Check that they are removed
         for partial_path in partial_paths:
             assert not partial_path.exists()
 
 
 def test_cleanup_artifacts():
-    """Тест очистки артефактов."""
+    """Test artifact cleanup."""
     fm = FileManager()
     
     with tempfile.TemporaryDirectory() as tmpdir:
         base_path = Path(tmpdir) / "test.mp4"
         base_path.write_text("test content")
         
-        # Создаем артефакты
+        # Create artifacts
         artifact1 = Path(tmpdir) / "test.mp4.part-001"
         artifact2 = Path(tmpdir) / "test.mp4.ytdl"
         artifact1.write_text("artifact1")
@@ -89,26 +89,26 @@ def test_cleanup_artifacts():
         assert artifact1.exists()
         assert artifact2.exists()
         
-        # Очищаем артефакты
+        # Clean up artifacts
         fm._cleanup_artifacts(base_path)
         
-        # Проверяем, что артефакты удалены
+        # Check that artifacts are removed
         assert not artifact1.exists()
         assert not artifact2.exists()
-        assert base_path.exists()  # Основной файл должен остаться
+        assert base_path.exists()  # Main file should remain
 
 
 def test_sweep_leftovers():
-    """Тест очистки оставшихся файлов в директории."""
+    """Test cleanup of remaining files in directory."""
     fm = FileManager()
     
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
         
-        # Создаем основной файл и артефакты
+        # Create main file and artifacts
         main_file = tmpdir_path / "video.mp4"
         artifact1 = tmpdir_path / "video.mp4.part-001"
-        artifact2 = tmpdir_path / "video.mp4.ytdl"  # Исправлено: должен соответствовать основному файлу
+        artifact2 = tmpdir_path / "video.mp4.ytdl"  # Fixed: should match main file
         unrelated = tmpdir_path / "other.txt"
         
         main_file.write_text("main content")
@@ -121,11 +121,11 @@ def test_sweep_leftovers():
         assert artifact2.exists()
         assert unrelated.exists()
         
-        # Очищаем оставшиеся файлы
+        # Clean up remaining files
         fm.sweep_leftovers(tmpdir_path)
         
-        # Проверяем результат
-        assert main_file.exists()  # Основной файл должен остаться
-        assert unrelated.exists()  # Несвязанный файл должен остаться
-        assert not artifact1.exists()  # Артефакты должны быть удалены
+        # Check result
+        assert main_file.exists()  # Main file should remain
+        assert unrelated.exists()  # Unrelated file should remain
+        assert not artifact1.exists()  # Artifacts should be removed
         assert not artifact2.exists()

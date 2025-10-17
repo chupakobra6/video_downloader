@@ -1,4 +1,4 @@
-"""Тесты для модуля конфигурации."""
+"""Tests for configuration module."""
 
 import tempfile
 from pathlib import Path
@@ -8,7 +8,7 @@ from src.config import Config
 
 
 def test_config_default():
-    """Тест создания конфигурации по умолчанию."""
+    """Test default configuration creation."""
     config = Config()
     assert config.browser == "chrome"
     assert config.browser_profile is None
@@ -18,7 +18,7 @@ def test_config_default():
 
 
 def test_config_custom():
-    """Тест создания кастомной конфигурации."""
+    """Test custom configuration creation."""
     config = Config(
         browser="edge",
         browser_profile="Test Profile",
@@ -34,7 +34,7 @@ def test_config_custom():
 
 
 def test_config_from_toml():
-    """Тест загрузки конфигурации из TOML."""
+    """Test loading configuration from TOML."""
     toml_content = """
 browser = "brave"
 browser_profile = "Test User"
@@ -59,21 +59,21 @@ cookies_file = "test_cookies.txt"
 
 
 def test_config_validation_valid():
-    """Тест валидации валидной конфигурации."""
+    """Test validation of valid configuration."""
     config = Config(browser="chrome")
-    # Не должно вызывать исключение
+    # Should not raise exception
     config.validate()
 
 
 def test_config_validation_invalid_browser():
-    """Тест валидации невалидного браузера."""
+    """Test validation of invalid browser."""
     config = Config(browser="invalid_browser")
     with pytest.raises(ValueError, match="Invalid browser"):
         config.validate()
 
 
 def test_config_validation_missing_cookies_file():
-    """Тест валидации с отсутствующим файлом куки."""
+    """Test validation with missing cookies file."""
     config = Config(cookies_file=Path("nonexistent_cookies.txt"))
-    # Не должно вызывать исключение, только предупреждение
+    # Should not raise exception, only warning
     config.validate()

@@ -1,4 +1,4 @@
-"""Захват видео через Playwright для DRM и нестандартных случаев."""
+"""Video capture via Playwright for DRM and non-standard cases."""
 
 import asyncio
 import logging
@@ -18,14 +18,14 @@ logger = logging.getLogger(__name__)
 
 
 class PlaywrightCapture:
-    """Захват видео через браузер с помощью Playwright."""
+    """Video capture via browser using Playwright."""
     
     def __init__(self):
         if async_playwright is None:
             logger.warning("Playwright not available - browser capture disabled")
     
     def _get_chrome_like_base(self, browser: str) -> Optional[Path]:
-        """Получить базовый путь к профилям браузера."""
+        """Get base path to browser profiles."""
         base: Optional[Path] = None
         match sys.platform:
             case "darwin":
@@ -51,7 +51,7 @@ class PlaywrightCapture:
         return base if base and base.exists() else None
     
     def _http_get_text(self, url: str, headers: Optional[dict[str, str]], timeout_sec: int = 30) -> Optional[str]:
-        """Получить текст по HTTP."""
+        """Get text via HTTP."""
         try:
             resp = requests.get(url, headers=headers or {}, timeout=timeout_sec)
             if resp.status_code >= 400:
@@ -62,7 +62,7 @@ class PlaywrightCapture:
             return None
     
     def detect_drm_in_m3u8(self, manifest_url: str, headers: Optional[dict[str, str]]) -> Tuple[bool, Optional[str]]:
-        """Обнаружить DRM в HLS манифестах."""
+        """Detect DRM in HLS manifests."""
         root = self._http_get_text(manifest_url, headers)
         if not root:
             return False, None
@@ -70,7 +70,7 @@ class PlaywrightCapture:
         text = root
         lower = text.lower()
         
-        # Проверка на master манифест
+        # Check for master manifest
         if "#ext-x-session-key" in lower and "sample-aes" in lower:
             return True, "SAMPLE-AES(session)"
         if "com.apple.fps" in lower or "fairplay" in lower:
@@ -78,7 +78,7 @@ class PlaywrightCapture:
         if "com.widevine.alpha" in lower or "widevine" in lower:
             return True, "Widevine"
         
-        # Поиск variant URL для проверки
+        # Search for variant URL to check
         variant_url: Optional[str] = None
         for line in text.splitlines():
             line = line.strip()
@@ -89,7 +89,7 @@ class PlaywrightCapture:
                 break
         
         if not variant_url:
-            # Single-level манифест
+            # Single-level manifest
             if "#ext-x-key" in lower:
                 if "sample-aes" in lower:
                     return True, "SAMPLE-AES"
@@ -97,7 +97,7 @@ class PlaywrightCapture:
                     return False, "AES-128"
             return False, None
         
-        # Проверка variant манифеста
+        # Check variant manifest
         variant = self._http_get_text(variant_url, headers)
         if not variant:
             return False, None
@@ -123,7 +123,7 @@ class PlaywrightCapture:
         resolved_profile: Optional[str],
         wait_timeout_sec: int = 45,
     ) -> Optional[Tuple[str, dict[str, str], Optional[str]]]:
-        """Захватить манифест потока через браузер."""
+        """Capture stream manifest via browser."""
         if async_playwright is None:
             return None
             
@@ -131,7 +131,7 @@ class PlaywrightCapture:
         
         try:
             async with async_playwright() as p:
-                # Простой запуск bundled chromium без профилей
+                # Simple launch of bundled chromium without profiles
                 logger.info("Launching bundled chromium for manifest capture")
                 context = await p.chromium.launch_persistent_context(
                     user_data_dir=str(Path.cwd() / ".pw-temp-profile"),
@@ -140,7 +140,7 @@ class PlaywrightCapture:
                         "--autoplay-policy=no-user-gesture-required",
                         "--disable-web-security",
                         "--disable-features=VizDisplayCompositor",
-                        # Убираем флаги автоматизации
+                        # Remove automation flags
                         "--disable-blink-features=AutomationControlled",
                         "--disable-dev-shm-usage",
                         "--no-sandbox",
@@ -184,19 +184,19 @@ class PlaywrightCapture:
                 
                 page = await context.new_page()
                 
-                # Маскируем автоматизацию
+                # Mask automation
                 await page.add_init_script("""
-                    // Убираем webdriver флаг
+                    // Remove webdriver flag
                     Object.defineProperty(navigator, 'webdriver', {
                         get: () => undefined,
                     });
                     
-                    // Маскируем автоматизацию
+                    // Mask automation
                     window.chrome = {
                         runtime: {},
                     };
                     
-                    // Убираем automation флаги
+                    // Remove automation flags
                     Object.defineProperty(navigator, 'plugins', {
                         get: () => [1, 2, 3, 4, 5],
                     });
@@ -205,7 +205,7 @@ class PlaywrightCapture:
                         get: () => ['en-US', 'en'],
                     });
                     
-                    // Маскируем permissions
+                    // Mask permissions
                     const originalQuery = window.navigator.permissions.query;
                     window.navigator.permissions.query = (parameters) => (
                         parameters.name === 'notifications' ?
@@ -213,12 +213,12 @@ class PlaywrightCapture:
                             originalQuery(parameters)
                     );
                     
-                    // Настройка для автоплей
+                    // Setup for autoplay
                     Object.defineProperty(document, 'visibilityState', {get: () => 'visible'});
                     Object.defineProperty(document, 'hidden', {get: () => false});
                 """)
                 
-                # Захват манифеста
+                # Capture manifest
                 found: asyncio.Future[Tuple[str, dict[str, str]]] = asyncio.get_event_loop().create_future()
                 
                 def _maybe_set(req_url: str, headers: dict[str, str]) -> None:
@@ -247,18 +247,18 @@ class PlaywrightCapture:
                 
                 await page.goto(page_url, wait_until="domcontentloaded")
                 
-                # Получение заголовка страницы
+                # Get page title
                 page_title: Optional[str] = None
                 try:
                     page_title = await page.title()
                 except Exception:
                     pass
                 
-                # Попытка запустить воспроизведение
+                # Attempt to start playback
                 selectors = [
                     "video",
                     "jugru-video video",
-                    "button[aria-label='Воспроизвести']",
+                    "button[aria-label='Play']",
                     "[data-testid='play'], .play, .video-play",
                 ]
                 for sel in selectors:
@@ -269,7 +269,7 @@ class PlaywrightCapture:
                     except Exception:
                         continue
                 
-                # Программный запуск видео
+                # Programmatic video start
                 try:
                     await page.evaluate("""
                         const v = document.querySelector('video');
@@ -301,7 +301,7 @@ class PlaywrightCapture:
         output_dir: Path,
         wait_timeout_sec: int = 180,
     ) -> Optional[Path]:
-        """Попытка скачивания через браузер."""
+        """Attempt download via browser."""
         if async_playwright is None:
             return None
             
@@ -309,7 +309,7 @@ class PlaywrightCapture:
         
         try:
             async with async_playwright() as p:
-                # Простой запуск bundled chromium без профилей и куки
+                # Simple launch of bundled chromium without profiles and cookies
                 logger.info("Launching bundled chromium for manual login")
                 context = await p.chromium.launch_persistent_context(
                     user_data_dir=str(Path.cwd() / ".pw-temp-profile"),
@@ -318,7 +318,7 @@ class PlaywrightCapture:
                         "--disable-web-security",
                         "--disable-features=VizDisplayCompositor",
                         "--autoplay-policy=no-user-gesture-required",
-                        # Убираем флаги автоматизации
+                        # Remove automation flags
                         "--disable-blink-features=AutomationControlled",
                         "--disable-dev-shm-usage",
                         "--no-sandbox",
@@ -362,19 +362,19 @@ class PlaywrightCapture:
                 
                 page = await context.new_page()
                 
-                # Маскируем автоматизацию
+                # Mask automation
                 await page.add_init_script("""
-                    // Убираем webdriver флаг
+                    // Remove webdriver flag
                     Object.defineProperty(navigator, 'webdriver', {
                         get: () => undefined,
                     });
                     
-                    // Маскируем автоматизацию
+                    // Mask automation
                     window.chrome = {
                         runtime: {},
                     };
                     
-                    // Убираем automation флаги
+                    // Remove automation flags
                     Object.defineProperty(navigator, 'plugins', {
                         get: () => [1, 2, 3, 4, 5],
                     });
@@ -383,7 +383,7 @@ class PlaywrightCapture:
                         get: () => ['en-US', 'en'],
                     });
                     
-                    // Маскируем permissions
+                    // Mask permissions
                     const originalQuery = window.navigator.permissions.query;
                     window.navigator.permissions.query = (parameters) => (
                         parameters.name === 'notifications' ?
@@ -392,11 +392,11 @@ class PlaywrightCapture:
                     );
                 """)
                 
-                # Переходим на страницу - пользователь может войти вручную
+                # Navigate to page - user can log in manually
                 logger.info("Opening page for manual login", extra={"url": url})
                 await page.goto(url, wait_until="domcontentloaded")
                 
-                # Сохраняем HTML разметку для диагностики
+                # Save HTML markup for diagnostics
                 try:
                     html_content = await page.content()
                     html_file = Path.cwd() / "debug" / "page_debug.html"
@@ -405,14 +405,14 @@ class PlaywrightCapture:
                 except Exception as e:
                     logger.warning("Failed to save page HTML", extra={"error": str(e)})
                 
-                # Ждем появления видео на странице (означает успешный вход)
+                # Wait for video to appear on page (indicates successful login)
                 logger.info("Waiting for video to appear on page (indicates successful login)...")
                 try:
-                    # Ждем появления видео элемента
-                    await page.wait_for_selector("video", timeout=60000)  # 60 секунд на вход
+                    # Wait for video element to appear
+                    await page.wait_for_selector("video", timeout=60000)  # 60 seconds for login
                     logger.info("Video found on page - user is logged in")
                     
-                    # Сохраняем HTML после появления видео
+                    # Save HTML after video appears
                     try:
                         html_content = await page.content()
                         html_file = Path.cwd() / "debug" / "page_with_video_debug.html"
@@ -421,7 +421,7 @@ class PlaywrightCapture:
                     except Exception as e:
                         logger.warning("Failed to save page HTML with video", extra={"error": str(e)})
                     
-                    # Пытаемся запустить воспроизведение
+                    # Attempt to start playback
                     try:
                         await page.evaluate("""
                             const videos = document.querySelectorAll('video');
@@ -436,9 +436,9 @@ class PlaywrightCapture:
                         
                 except Exception as e:
                     logger.warning("No video found on page", extra={"error": str(e)})
-                    # Продолжаем в любом случае - возможно видео появится позже
+                    # Continue anyway - video might appear later
                 
-                # Проверяем состояние видео перед попыткой скачивания
+                # Check video state before download attempt
                 try:
                     video_info = await page.evaluate("""
                         const videos = document.querySelectorAll('video');
@@ -466,7 +466,7 @@ class PlaywrightCapture:
                 
                 try:
                     async with page.expect_download(timeout=wait_timeout_sec * 1000) as dl_info:
-                        # Поиск iframe Kinescope
+                        # Search for Kinescope iframe
                         target_frame = None
                         try:
                             for fr in page.frames:
@@ -476,12 +476,12 @@ class PlaywrightCapture:
                         except Exception:
                             target_frame = None
                         
-                        # Селекторы для кнопок скачивания
+                        # Selectors for download buttons
                         candidates = [
-                            "button[aria-label*='Скачать']",
-                            "button[aria-label*='скачать']",
+                            "button[aria-label*='Download']",
+                            "button[aria-label*='download']",
                             "button[aria-label*='Download' i]",
-                            "button:has-text('Скачать')",
+                            "button:has-text('Download')",
                             "button:has-text('Download')",
                             "[data-testid='downloadsButton']",
                             "[data-testid='downloadButton']",
@@ -502,7 +502,7 @@ class PlaywrightCapture:
                                     continue
                             return False
                         
-                        # Клик в iframe или основной странице
+                        # Click in iframe or main page
                         clicked = False
                         if target_frame is not None:
                             logger.info("Trying to click download button in iframe")
@@ -511,7 +511,7 @@ class PlaywrightCapture:
                             logger.info("Trying to click download button in main page")
                             clicked = await _click_in(page)
                         
-                        # Попытка клика по ссылке скачивания
+                        # Attempt to click download link
                         if target_frame is not None and not clicked:
                             try:
                                 link = await target_frame.query_selector("a[download], a[href*='.mp4']")
@@ -524,7 +524,7 @@ class PlaywrightCapture:
                         
                         if not clicked:
                             logger.info("No download button found, waiting for manual click")
-                            # Дать пользователю время для ручного клика
+                            # Give user time for manual click
                             try:
                                 await page.wait_for_timeout(1500)
                             except Exception:

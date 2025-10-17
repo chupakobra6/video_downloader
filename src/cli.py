@@ -1,4 +1,4 @@
-"""CLI интерфейс для video_downloader."""
+"""CLI interface for video_downloader."""
 
 import argparse
 import logging
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
-    """Парсинг аргументов командной строки."""
+    """Parse command line arguments."""
     parser = argparse.ArgumentParser(
         description=(
             "Download authenticated videos with yt-dlp using your browser cookies. "
@@ -60,7 +60,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 
 def resolve_urls(inputs: list[str]) -> list[str]:
-    """Разрешить входные данные в список URL."""
+    """Resolve input data to a list of URLs."""
     urls: list[str] = []
     for item in inputs:
         path = Path(item)
@@ -73,17 +73,17 @@ def resolve_urls(inputs: list[str]) -> list[str]:
 
 
 def main(argv: Optional[list[str]] = None) -> None:
-    """Главная функция CLI."""
+    """Main CLI function."""
     args = parse_args(sys.argv[1:] if argv is None else argv)
     
-    # Настройка логирования
+    # Configure logging
     log_level = logging.DEBUG if args.verbose else logging.INFO
     configure_logging(log_level)
     
     logger.info("START cli_main")
     
     try:
-        # Загрузка конфигурации
+        # Load configuration
         config_path = Path(args.config)
         project_root = Path.cwd()
         
@@ -97,14 +97,14 @@ def main(argv: Optional[list[str]] = None) -> None:
                 output_root=Path(args.output_root),
             )
         
-        # Валидация конфигурации
+        # Validate configuration
         config.validate()
         
-        # Разрешение URL
+        # Resolve URLs
         if args.inputs:
             urls = resolve_urls(args.inputs)
         else:
-            # Используем файл ссылок из конфигурации
+            # Use links file from configuration
             urls = read_links_file(config.links_file)
             
         valid_urls = validate_urls(urls)
@@ -123,7 +123,7 @@ def main(argv: Optional[list[str]] = None) -> None:
             },
         )
         
-        # Скачивание
+        # Download
         downloader = VideoDownloader(
             browser=config.browser,
             browser_profile=config.browser_profile,

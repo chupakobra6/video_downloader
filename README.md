@@ -1,153 +1,153 @@
 # Video Downloader
 
-Автономный инструмент для скачивания видео с конференций и платформ, требующих аутентификации через браузерные куки.
+Standalone tool for downloading videos from conferences and platforms that require authentication via browser cookies.
 
-## Возможности
+## Features
 
-- Скачивание видео с сайтов конференций (JPoint, Heisenbug, HolyJS, Mobius)
-- Использование браузерных куки для аутентификации
-- Поддержка Chrome, Brave, Edge, Chromium
-- Автоматическое определение профилей браузера
-- Обход DRM через официальные ссылки скачивания
-- Поддержка HLS/DASH потоков
-- Возобновление прерванных загрузок
+- Download videos from conference websites (JPoint, Heisenbug, HolyJS, Mobius)
+- Use browser cookies for authentication
+- Support for Chrome, Brave, Edge, Chromium
+- Automatic browser profile detection
+- DRM bypass through official download links
+- HLS/DASH stream support
+- Resume interrupted downloads
 
-## Установка
+## Installation
 
-1. Клонируйте репозиторий:
+1. Clone the repository:
 ```bash
 git clone <repository-url>
 cd video_downloader
 ```
 
-2. Установите зависимости:
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Установите браузеры для Playwright (опционально):
+3. Install browsers for Playwright (optional):
 ```bash
 playwright install chromium
 ```
 
-## Конфигурация
+## Configuration
 
-Отредактируйте `config.toml`:
+Edit `config.toml`:
 
 ```toml
-# Браузер для чтения куки
+# Browser to read cookies from
 browser = "chrome"
 
-# Профиль браузера (например, "Игорь", "Default", "Profile 1")
-browser_profile = "Игорь"
+# Browser profile (e.g., "Default", "Profile 1")
+browser_profile = "Default"
 
-# Корневая директория для загрузок
+# Root directory for downloads
 output_root = "downloads"
 
-# Файл со ссылками (один URL на строку)
+# File with links (one URL per line)
 links_file = "links.txt"
 
-# Опционально: путь к cookies.txt (формат Netscape)
+# Optional: path to cookies.txt (Netscape format)
 # cookies_file = "cookies.txt"
 ```
 
-## Использование
+## Usage
 
-### Подготовка ссылок
+### Preparing links
 
-Добавьте URL в файл `links.txt` (по одному на строку):
+Add URLs to `links.txt` file (one per line):
 ```
 https://jpoint.ru/talks/example-talk-id/
 https://heisenbug.ru/archive/2025%20Spring/talks/example-id/
 ```
 
-### Запуск
+### Running
 
 ```bash
-# Основной способ
+# Main method
 python main.py
 
-# С аргументами командной строки
-python main.py https://example.com/video/ --browser chrome --browser-profile "Игорь"
+# With command line arguments
+python main.py https://example.com/video/ --browser chrome --browser-profile "Default"
 
-# Через модуль Python
+# Via Python module
 python -m src.cli https://example.com/video/
 ```
 
-### CLI параметры
+### CLI parameters
 
 ```bash
-python main.py [URLs...] --browser chrome --browser-profile "Игорь" --output-root downloads/
+python main.py [URLs...] --browser chrome --browser-profile "Default" --output-root downloads/
 ```
 
-## Поддерживаемые платформы
+## Supported platforms
 
 - **JPoint** (jpoint.ru)
 - **Heisenbug** (heisenbug.ru) 
 - **HolyJS** (holyjs.ru)
 - **Mobius** (mobiusconf.com)
-- Другие сайты с HLS/DASH потоками
+- Other sites with HLS/DASH streams
 
-## Требования
+## Requirements
 
 - Python 3.8+
-- Браузер с установленными куки (Chrome/Brave/Edge/Chromium)
-- FFmpeg (для обработки видео)
+- Browser with installed cookies (Chrome/Brave/Edge/Chromium)
+- FFmpeg (for video processing)
 
-## Разработка
+## Development
 
-Проект использует CI/CD с автоматическими проверками тестов и линтинга.
+The project uses CI/CD with automatic test and linting checks.
 
-### Структура проекта
+### Project structure
 
 ```
 video_downloader/
-├── main.py             # Главная точка входа
-├── config.toml         # Конфигурация
-├── links.txt          # Список URL для скачивания
-├── requirements.txt   # Зависимости
-├── src/               # Исходный код
-│   ├── config.py      # Управление конфигурацией
-│   ├── browser.py     # Браузерные профили
-│   ├── downloader.py  # Основная логика скачивания
-│   ├── file_manager.py # Управление файлами
-│   ├── playwright_capture.py # Браузерное скачивание
-│   ├── utils.py       # Вспомогательные функции
-│   └── cli.py         # CLI интерфейс
-├── tests/             # Тесты
+├── main.py             # Main entry point
+├── config.toml         # Configuration
+├── links.txt          # List of URLs to download
+├── requirements.txt   # Dependencies
+├── src/               # Source code
+│   ├── config.py      # Configuration management
+│   ├── browser.py     # Browser profiles
+│   ├── downloader.py  # Main download logic
+│   ├── file_manager.py # File management
+│   ├── playwright_capture.py # Browser download
+│   ├── utils.py       # Utility functions
+│   └── cli.py         # CLI interface
+├── tests/             # Tests
 │   ├── test_config.py
 │   ├── test_file_manager.py
 │   └── test_utils.py
 ├── .github/           # GitHub workflows
-├── debug/             # Отладочные файлы (игнорируется git)
-└── README.md         # Документация
+├── debug/             # Debug files (ignored by git)
+└── README.md         # Documentation
 ```
 
-## Алгоритм работы
+## Algorithm
 
-1. **Пробное скачивание**: Попытка через yt-dlp с браузерными куки
-2. **Захват манифеста**: Если не поддерживается, используется Playwright для захвата HLS/DASH манифеста
-3. **Определение DRM**: Эвристическое определение защиты контента
-4. **Официальное скачивание**: При обнаружении DRM - переход на официальный поток скачивания через браузер
-5. **Обработка**: FFmpeg для финальной обработки и оптимизации
+1. **Trial download**: Attempt via yt-dlp with browser cookies
+2. **Manifest capture**: If not supported, use Playwright to capture HLS/DASH manifest
+3. **DRM detection**: Heuristic detection of content protection
+4. **Official download**: When DRM is detected - switch to official download stream via browser
+5. **Processing**: FFmpeg for final processing and optimization
 
-## Устранение неполадок
+## Troubleshooting
 
-### Проблемы с куки
-- Убедитесь, что вы авторизованы в браузере на целевом сайте
-- Проверьте правильность профиля браузера в `config.toml`
-- Попробуйте экспортировать куки через расширение "Get cookies.txt"
+### Cookie issues
+- Make sure you're logged in to the browser on the target site
+- Check the browser profile correctness in `config.toml`
+- Try exporting cookies via "Get cookies.txt" extension
 
-### Проблемы с DRM
-- Инструмент автоматически переключается на официальное скачивание
-- Убедитесь, что у вас есть доступ к скачиванию на сайте
-- Некоторые видео могут быть недоступны для скачивания
+### DRM issues
+- The tool automatically switches to official download
+- Make sure you have download access on the site
+- Some videos may be unavailable for download
 
-### Проблемы с Playwright
-- Установите браузеры: `playwright install chromium`
-- Проверьте права доступа к профилю браузера
-- Попробуйте другой браузер в конфигурации
+### Playwright issues
+- Install browsers: `playwright install chromium`
+- Check browser profile access permissions
+- Try a different browser in configuration
 
-## Лицензия
+## License
 
 MIT License

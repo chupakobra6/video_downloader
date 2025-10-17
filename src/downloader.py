@@ -1,4 +1,4 @@
-"""Основной модуль скачивания видео."""
+"""Main video download module."""
 
 import asyncio
 import logging
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class VideoDownloader:
-    """Основной класс для скачивания видео."""
+    """Main class for video downloading."""
     
     def __init__(
         self,
@@ -32,11 +32,11 @@ class VideoDownloader:
         self.file_manager = FileManager()
         self.playwright_capture = PlaywrightCapture()
         
-        # Статистика по доменам
+        # Domain statistics
         self.domain_stats: dict[str, dict[str, int]] = {}
         
     def _ensure_output_dir(self, base_dir: Path, url: str) -> Path:
-        """Создать директорию для скачивания по домену."""
+        """Create download directory by domain."""
         parsed = urlparse(url)
         domain = parsed.netloc or "unknown-domain"
         destination = base_dir / domain
@@ -44,7 +44,7 @@ class VideoDownloader:
         return destination
     
     def _build_ydl_opts(self, output_dir: Path, url: str) -> dict:
-        """Построить опции для yt-dlp."""
+        """Build options for yt-dlp."""
         parsed = urlparse(url)
         origin = f"{parsed.scheme}://{parsed.netloc}"
         
@@ -77,7 +77,7 @@ class VideoDownloader:
             "check_formats": True,
         }
         
-        # Настройка куки
+        # Configure cookies
         if self.cookies_file and self.cookies_file.exists():
             ydl_opts["cookiefile"] = str(self.cookies_file)
             logger.info("Using cookies file", extra={"path": str(self.cookies_file)})
@@ -101,19 +101,19 @@ class VideoDownloader:
         return ydl_opts
     
     def _download_with_ytdl(self, url: str, output_dir: Path) -> Optional[Path]:
-        """Скачать видео через yt-dlp."""
+        """Download video via yt-dlp."""
         logger.info("START ytdl_download", extra={"url": url, "output_dir": str(output_dir)})
         
         try:
             ydl_opts = self._build_ydl_opts(output_dir, url)
             
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                # Проверка поддержки URL
+                # Check URL support
                 try:
                     probe_info = ydl.extract_info(url, download=False)
                     expected_path = Path(ydl.prepare_filename(probe_info))
                     
-                    # Проверка на существующий файл
+                    # Check for existing file
                     if self.file_manager.should_skip_download(expected_path):
                         logger.info("DONE ytdl_download - already exists", extra={"file": str(expected_path)})
                         return expected_path
@@ -124,7 +124,7 @@ class VideoDownloader:
                         return None
                     raise
                 
-                # Скачивание
+                # Download
                 ydl.extract_info(url, download=True)
                 logger.info("DONE ytdl_download", extra={"file": str(expected_path)})
                 return expected_path
@@ -134,7 +134,7 @@ class VideoDownloader:
             return None
     
     def _download_with_playwright(self, url: str, output_dir: Path) -> Optional[Path]:
-        """Скачать видео через браузер (для DRM или нестандартных случаев)."""
+        """Download video via browser (for DRM or non-standard cases)."""
         logger.info("START playwright_download", extra={"url": url, "output_dir": str(output_dir)})
         
         try:
@@ -161,7 +161,7 @@ class VideoDownloader:
             return None
     
     def download_video(self, url: str, base_output_dir: Path) -> Optional[Path]:
-        """Скачать одно видео с fallback стратегией."""
+        """Download a single video with fallback strategy."""
         logger.info("START download_video", extra={"url": url})
         
         try:
@@ -169,19 +169,19 @@ class VideoDownloader:
             parsed = urlparse(url)
             domain = parsed.netloc or "unknown-domain"
             
-            # Инициализация статистики домена
+            # Initialize domain statistics
             if domain not in self.domain_stats:
                 self.domain_stats[domain] = {"total": 0, "success": 0}
             self.domain_stats[domain]["total"] += 1
             
-            # Очистка старых артефактов
+            # Clean up old artifacts
             self.file_manager.sweep_leftovers(destination)
             
-            # Попытка скачивания через yt-dlp
+            # Attempt download via yt-dlp
             result = self._download_with_ytdl(url, destination)
             
             if result is None:
-                # Fallback на браузерное скачивание
+                # Fallback to browser download
                 logger.info("Trying browser download fallback", extra={"url": url})
                 result = self._download_with_playwright(url, destination)
             
@@ -198,7 +198,7 @@ class VideoDownloader:
             return None
     
     def download_videos(self, urls: Iterable[str], base_output_dir: Path) -> None:
-        """Скачать множество видео."""
+        """Download multiple videos."""
         logger.info("START download_videos", extra={"count": len(list(urls))})
         
         downloaded_files: dict[str, list[str]] = {}
@@ -215,13 +215,13 @@ class VideoDownloader:
                     downloaded_files[domain] = []
                 downloaded_files[domain].append(result.stem)
         
-        # Создание файлов с названиями для успешно скачанных доменов
+        # Create title files for successfully downloaded domains
         self._create_titles_files(base_output_dir, downloaded_files)
         
         logger.info("DONE download_videos", extra={"stats": self.domain_stats})
     
     def _create_titles_files(self, base_output_dir: Path, downloaded_files: dict[str, list[str]]) -> None:
-        """Создать файлы с названиями скачанных видео."""
+        """Create files with names of downloaded videos."""
         for domain, files in downloaded_files.items():
             domain_stats = self.domain_stats.get(domain, {"total": 0, "success": 0})
             if domain_stats["total"] > 0 and domain_stats["success"] == domain_stats["total"]:
