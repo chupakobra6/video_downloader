@@ -13,13 +13,11 @@ class Config:
 
     def __init__(
         self,
-        browser: str = "chrome",
         browser_profile: Optional[str] = None,
         output_root: Path = Path("downloads"),
         links_file: Path = Path("links.txt"),
         cookies_file: Optional[Path] = None,
     ):
-        self.browser = browser
         self.browser_profile = browser_profile
         self.output_root = output_root
         self.links_file = links_file
@@ -38,7 +36,6 @@ class Config:
             )
             raise ValueError(f"Invalid config file: {e}") from e
 
-        browser: str = cfg.get("browser", "chrome")
         browser_profile: Optional[str] = cfg.get("browser_profile")
         output_root: Path = Path(cfg.get("output_root", "downloads"))
         links_file: str = cfg.get("links_file", "links.txt")
@@ -60,7 +57,6 @@ class Config:
         )
 
         return cls(
-            browser=browser,
             browser_profile=browser_profile,
             output_root=output_root,
             links_file=links_path,
@@ -69,12 +65,6 @@ class Config:
 
     def validate(self) -> None:
         """Validate configuration."""
-        valid_browsers = {"chrome", "brave", "edge", "chromium", "safari"}
-        if self.browser not in valid_browsers:
-            raise ValueError(
-                f"Invalid browser: {self.browser}. Must be one of {valid_browsers}"
-            )
-
         if self.cookies_file and not self.cookies_file.exists():
             logger.warning(
                 "Cookies file not found", extra={"path": str(self.cookies_file)}
@@ -83,7 +73,6 @@ class Config:
         logger.info(
             "Configuration loaded",
             extra={
-                "browser": self.browser,
                 "profile": self.browser_profile,
                 "output_root": str(self.output_root),
                 "links_file": str(self.links_file),

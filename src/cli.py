@@ -30,12 +30,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "uses links_file from config."
         ),
     )
-    parser.add_argument(
-        "--browser",
-        default="chrome",
-        choices=["chrome", "brave", "edge", "chromium", "safari"],
-        help="Browser to read cookies from (must be logged in).",
-    )
+    # Browser is fixed to Chrome - no need for selection
     parser.add_argument(
         "--browser-profile",
         default=None,
@@ -96,7 +91,6 @@ def main(argv: Optional[list[str]] = None) -> None:
                 extra={"path": str(config_path)},
             )
             config = Config(
-                browser=args.browser,
                 browser_profile=args.browser_profile,
                 output_root=Path(args.output_root),
             )
@@ -120,7 +114,6 @@ def main(argv: Optional[list[str]] = None) -> None:
         logger.info(
             "Starting downloads",
             extra={
-                "browser": config.browser,
                 "profile": config.browser_profile,
                 "output_root": str(config.output_root),
                 "count": len(valid_urls),
@@ -129,7 +122,6 @@ def main(argv: Optional[list[str]] = None) -> None:
 
         # Download
         downloader = VideoDownloader(
-            browser=config.browser,
             browser_profile=config.browser_profile,
             cookies_file=config.cookies_file,
         )

@@ -21,14 +21,12 @@ class VideoDownloader:
 
     def __init__(
         self,
-        browser: str = "chrome",
         browser_profile: Optional[str] = None,
         cookies_file: Optional[Path] = None,
     ) -> None:
-        self.browser: str = browser
         self.browser_profile: Optional[str] = browser_profile
         self.cookies_file: Optional[Path] = cookies_file
-        self.profile_manager: BrowserProfileManager = BrowserProfileManager(browser)
+        self.profile_manager: BrowserProfileManager = BrowserProfileManager()
         self.file_manager: FileManager = FileManager()
         self.playwright_capture: PlaywrightCapture = PlaywrightCapture()
 
@@ -86,24 +84,21 @@ class VideoDownloader:
                 self.browser_profile
             )
             if resolved_profile is None:
-                logger.info(
-                    "Using default browser profile", extra={"browser": self.browser}
-                )
-                ydl_opts["cookiesfrombrowser"] = (self.browser, None, None, None)
+                logger.info("Using default Chrome profile")
+                ydl_opts["cookiesfrombrowser"] = ("chrome", None, None, None)
             else:
                 profile_info: dict[
                     str, Optional[str]
                 ] = self.profile_manager.get_profile_info(resolved_profile)
                 logger.info(
-                    "Using browser profile",
+                    "Using Chrome profile",
                     extra={
-                        "browser": self.browser,
                         "profile": resolved_profile,
                         "display_name": profile_info["display_name"],
                     },
                 )
                 ydl_opts["cookiesfrombrowser"] = (
-                    self.browser,
+                    "chrome",
                     resolved_profile,
                     None,
                     None,
@@ -165,7 +160,6 @@ class VideoDownloader:
             result: Optional[Path] = asyncio.run(
                 self.playwright_capture.attempt_browser_download(
                     url=url,
-                    browser=self.browser,
                     resolved_profile=resolved_profile,
                     output_dir=output_dir,
                     wait_timeout_sec=180,

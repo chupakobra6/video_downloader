@@ -10,41 +10,19 @@ logger = logging.getLogger(__name__)
 
 
 class BrowserProfileManager:
-    """Browser profile manager for cookie extraction."""
+    """Chrome profile manager for cookie extraction."""
 
-    def __init__(self, browser: str) -> None:
-        self.browser: str = browser
-        self._base_path: Optional[Path] = self._get_chrome_like_base()
+    def __init__(self) -> None:
+        self._base_path: Optional[Path] = self._get_chrome_base()
 
-    def _get_chrome_like_base(self) -> Optional[Path]:
-        """Get base path to browser profiles."""
+    def _get_chrome_base(self) -> Optional[Path]:
+        """Get base path to Chrome profiles."""
         base: Optional[Path] = None
         match sys.platform:
             case "darwin":
-                match self.browser:
-                    case "chrome":
-                        base = Path.home() / "Library/Application Support/Google/Chrome"
-                    case "brave":
-                        base = (
-                            Path.home()
-                            / "Library/Application Support/BraveSoftware/Brave-Browser"
-                        )
-                    case "edge":
-                        base = (
-                            Path.home() / "Library/Application Support/Microsoft Edge"
-                        )
-                    case "chromium":
-                        base = Path.home() / "Library/Application Support/Chromium"
+                base = Path.home() / "Library/Application Support/Google/Chrome"
             case "linux" | "linux2":
-                match self.browser:
-                    case "chrome":
-                        base = Path.home() / ".config/google-chrome"
-                    case "brave":
-                        base = Path.home() / ".config/BraveSoftware/Brave-Browser"
-                    case "edge":
-                        base = Path.home() / ".config/microsoft-edge"
-                    case "chromium":
-                        base = Path.home() / ".config/chromium"
+                base = Path.home() / ".config/google-chrome"
         return base if base and base.exists() else None
 
     def _has_cookies(self, dir_name: str) -> bool:
@@ -169,7 +147,6 @@ class BrowserProfileManager:
         logger.info(
             "Finding profile name",
             extra={
-                "browser": self.browser,
                 "requested_profile": requested_profile,
                 "base_path": str(self._base_path) if self._base_path else None,
             },
@@ -204,7 +181,7 @@ class BrowserProfileManager:
                 logger.info("Found fallback profile", extra={"profile": candidate})
                 return candidate
 
-        logger.warning("No profile found with cookies", extra={"browser": self.browser})
+        logger.warning("No profile found with cookies")
         return None
 
     def get_profile_info(self, profile_name: Optional[str]) -> dict[str, Optional[str]]:

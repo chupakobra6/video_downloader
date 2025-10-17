@@ -1,8 +1,5 @@
 # Downloader settings
-# Browser to read cookies from. Options: chrome, brave, edge, chromium, safari
-browser = "chrome"
-
-# Browser profile name. On macOS Chrome this is usually "Default" or "Profile 1"
+# Chrome profile name. On macOS Chrome this is usually "Default" or "Profile 1"
 browser_profile = "Игорь"
 
 # Root directory for downloads (relative to project root allowed)

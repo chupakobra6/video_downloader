@@ -10,7 +10,6 @@ def test_parse_args_default() -> None:
     """Test parsing default arguments."""
     args = parse_args([])
     assert args.inputs == []
-    assert args.browser == "chrome"
     assert args.browser_profile is None
     assert args.output_root == "downloads"
     assert args.config == "config.toml"
@@ -21,15 +20,12 @@ def test_parse_args_with_urls() -> None:
     """Test parsing arguments with URLs."""
     args = parse_args(["https://example.com", "https://test.com"])
     assert args.inputs == ["https://example.com", "https://test.com"]
-    assert args.browser == "chrome"
 
 
 def test_parse_args_with_options() -> None:
     """Test parsing arguments with options."""
     args = parse_args(
         [
-            "--browser",
-            "brave",
             "--browser-profile",
             "Profile 1",
             "--output-root",
@@ -40,7 +36,6 @@ def test_parse_args_with_options() -> None:
             "https://example.com",
         ]
     )
-    assert args.browser == "brave"
     assert args.browser_profile == "Profile 1"
     assert args.output_root == "/tmp/downloads"
     assert args.config == "custom.toml"

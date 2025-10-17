@@ -5,9 +5,8 @@ Standalone tool for downloading videos from conferences and platforms that requi
 ## Features
 
 - Download videos from conference websites (JPoint, Heisenbug, HolyJS, Mobius)
-- Use browser cookies for authentication
-- Support for Chrome, Brave, Edge, Chromium
-- Automatic browser profile detection
+- Use Chrome browser cookies for authentication
+- Automatic Chrome profile detection
 - DRM bypass through official download links
 - HLS/DASH stream support
 - Resume interrupted downloads
@@ -35,10 +34,7 @@ playwright install chromium
 Edit `config.toml`:
 
 ```toml
-# Browser to read cookies from
-browser = "chrome"
-
-# Browser profile (e.g., "Default", "Profile 1")
+# Chrome profile (e.g., "Default", "Profile 1")
 browser_profile = "Default"
 
 # Root directory for downloads
@@ -68,7 +64,7 @@ https://heisenbug.ru/archive/2025%20Spring/talks/example-id/
 python main.py
 
 # With command line arguments
-python main.py https://example.com/video/ --browser chrome --browser-profile "Default"
+python main.py https://example.com/video/ --browser-profile "Default"
 
 # Via Python module
 python -m src.cli https://example.com/video/
@@ -77,7 +73,7 @@ python -m src.cli https://example.com/video/
 ### CLI parameters
 
 ```bash
-python main.py [URLs...] --browser chrome --browser-profile "Default" --output-root downloads/
+python main.py [URLs...] --browser-profile "Default" --output-root downloads/
 ```
 
 ## Supported platforms
@@ -91,7 +87,7 @@ python main.py [URLs...] --browser chrome --browser-profile "Default" --output-r
 ## Requirements
 
 - Python 3.8+
-- Browser with installed cookies (Chrome/Brave/Edge/Chromium)
+- Chrome browser with installed cookies
 - FFmpeg (for video processing)
 
 ## Development
@@ -134,8 +130,8 @@ video_downloader/
 ## Troubleshooting
 
 ### Cookie issues
-- Make sure you're logged in to the browser on the target site
-- Check the browser profile correctness in `config.toml`
+- Make sure you're logged in to Chrome on the target site
+- Check the Chrome profile correctness in `config.toml`
 - Try exporting cookies via "Get cookies.txt" extension
 
 ### DRM issues
@@ -145,8 +141,7 @@ video_downloader/
 
 ### Playwright issues
 - Install browsers: `playwright install chromium`
-- Check browser profile access permissions
-- Try a different browser in configuration
+- Check Chrome profile access permissions
 
 ## License
 

@@ -28,35 +28,14 @@ class PlaywrightCapture:
         if not self.playwright_available:
             logger.warning("Playwright not available - browser capture disabled")
 
-    def _get_chrome_like_base(self, browser: str) -> Optional[Path]:
-        """Get base path to browser profiles."""
+    def _get_chrome_base(self) -> Optional[Path]:
+        """Get base path to Chrome profiles."""
         base: Optional[Path] = None
         match sys.platform:
             case "darwin":
-                match browser:
-                    case "chrome":
-                        base = Path.home() / "Library/Application Support/Google/Chrome"
-                    case "brave":
-                        base = (
-                            Path.home()
-                            / "Library/Application Support/BraveSoftware/Brave-Browser"
-                        )
-                    case "edge":
-                        base = (
-                            Path.home() / "Library/Application Support/Microsoft Edge"
-                        )
-                    case "chromium":
-                        base = Path.home() / "Library/Application Support/Chromium"
+                base = Path.home() / "Library/Application Support/Google/Chrome"
             case "linux" | "linux2":
-                match browser:
-                    case "chrome":
-                        base = Path.home() / ".config/google-chrome"
-                    case "brave":
-                        base = Path.home() / ".config/BraveSoftware/Brave-Browser"
-                    case "edge":
-                        base = Path.home() / ".config/microsoft-edge"
-                    case "chromium":
-                        base = Path.home() / ".config/chromium"
+                base = Path.home() / ".config/google-chrome"
         return base if base and base.exists() else None
 
     def _http_get_text(
@@ -131,7 +110,6 @@ class PlaywrightCapture:
     async def capture_stream_manifest(
         self,
         page_url: str,
-        browser: str,
         resolved_profile: Optional[str],
         wait_timeout_sec: int = 45,
     ) -> Optional[Tuple[str, dict[str, str], Optional[str]]]:
@@ -336,7 +314,6 @@ class PlaywrightCapture:
     async def attempt_browser_download(
         self,
         url: str,
-        browser: str,
         resolved_profile: Optional[str],
         output_dir: Path,
         wait_timeout_sec: int = 180,
