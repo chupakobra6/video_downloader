@@ -1,0 +1,127 @@
+# URLs, one per line. Lines starting with # are ignored.
+# Example:
+# https://mobiusconf.com/archive/2025%20Spring/talks/d853e192b3d9412290c755752003c258/
+
+# JPoint
+# 1 day
+# https://jpoint.ru/talks/6476037d0041459cbcaae311d5d0f108/
+# https://jpoint.ru/talks/f80e24bec5cf4c82a1f073fd8a4fcf25/
+# https://jpoint.ru/talks/7221bcb7500f4e46b99d57a12265564f/
+# https://jpoint.ru/talks/e12f16f5189e4b9d96bfac5dbabc3d66/
+
+# https://jpoint.ru/talks/5a37f1bb7a554e13b9cdcfa5b9c1accd/
+# https://jpoint.ru/talks/67b2dd66d4304ae6a895ca0fc83d4231/
+# https://jpoint.ru/talks/d211a4eee88c43ac8c9357c0bfe5d4f0/
+# https://jpoint.ru/talks/24a4e3669e3f4933bb54bca97ab2aac9/
+
+# https://jpoint.ru/talks/76dbcf2dc90f420592581dba84981aeb/
+# https://jpoint.ru/talks/f1901aeb8df74c18bc67dff171d05723/
+# https://jpoint.ru/talks/ce99e026b6fc4e958b3ca45253a63b84/
+# https://jpoint.ru/talks/d81026f4504349f1bbd7f7e3737cd15d/
+
+# https://jpoint.ru/talks/7b62c8c183a6471a9daea45aa2b123ca/
+# https://jpoint.ru/talks/a3130b924c2c4690bcbaac245b931bdb/
+
+# https://jpoint.ru/talks/815b9569b8a84b148ee93698a14ffb47/
+# https://jpoint.ru/talks/78adad964d164868843dcd0ba3fd18ff/
+# https://jpoint.ru/talks/a5b9e217e9f8407d8c71da6d41d64713/
+
+# https://jpoint.ru/talks/079c141241054013915d9b3b2f82e829/
+
+# 2 day
+# https://jpoint.ru/talks/8af037129a7e4ec5a99a9b3274de4cf1/
+# https://jpoint.ru/talks/072fe640afe84766988a13820c645d37/
+
+# https://jpoint.ru/talks/8f6a60900d8e488f98b81333137a093e/
+# https://jpoint.ru/talks/492ca14a4d214fc0859ba18d9474e188/
+# https://jpoint.ru/talks/1b3e1a120e6042519ad4766b3e82ea78/
+# https://jpoint.ru/talks/f6776d66a663421ab63653dcdeb4063f/
+
+# https://jpoint.ru/talks/8fc4127d2e3142e99453d930231970e9/
+# https://jpoint.ru/talks/f3254b9d2f4a46c884bd85d1fe1de632/
+# https://jpoint.ru/talks/96a13949acc242edb250a8090f177e6c/
+# https://jpoint.ru/talks/cb144eaa11544cdcaf3d2e4c92d2dbeb/
+
+# https://jpoint.ru/talks/cf9f633f89ea4ab9b6e2262ad332e23b/
+# https://jpoint.ru/talks/86f391ebb4a441aa9c419993794b6dc9/
+# https://jpoint.ru/talks/a18bd4f281b048b79348153121d8c9c0/
+# https://jpoint.ru/talks/751ff0fa82bc494396756268b52798de/
+
+# https://jpoint.ru/talks/625b5adff19d4f32bda4dd683d643281/
+# https://jpoint.ru/talks/680ba96ab7d44e1b8d92dcde7b336e68/
+# https://jpoint.ru/talks/7cd810e5e9c242598eaaebab8e0a34b0/
+# https://jpoint.ru/talks/b63ecb5ed87147e49bafe2776ae0a5be/
+
+# https://jpoint.ru/talks/41cd1824b5a040a1b51ff6d3f8ebd78c/
+# https://jpoint.ru/talks/b5b425f1091b453a924b4b0bccc00e5d/
+# https://jpoint.ru/talks/9490fc69edd6432686d59fc28998d874/
+
+
+# Heisenbug
+# 1 day
+# https://heisenbug.ru/archive/2025%20Spring/talks/75e4aea935f340e5a2b243d7807a6eb6/
+
+https://heisenbug.ru/archive/2025%20Spring/talks/f4d481ec168c4a81ab5a4aa16f4591dd/
+https://heisenbug.ru/archive/2025%20Spring/talks/c00884badb30491484392d39687cf25d/
+https://heisenbug.ru/archive/2025%20Spring/talks/57de2defdad04622b3b1f8335ec32521/
+https://heisenbug.ru/archive/2025%20Spring/talks/52d07b75f0034c54b3aa0bc5ffe6c241/
+
+https://heisenbug.ru/archive/2025%20Spring/talks/e65895cc7abc4c029fbf6f337bc8e750/
+https://heisenbug.ru/archive/2025%20Spring/talks/14a14b386f4c4b6fa803424afffa2332/
+https://heisenbug.ru/archive/2025%20Spring/talks/a6ca9f6082f3457a9031c05b44fea7e7/
+https://heisenbug.ru/archive/2025%20Spring/talks/e7b979fd9fd34ce4ac6e205c959b42df/
+
+https://heisenbug.ru/archive/2025%20Spring/talks/0aa56d6f2f7c4bdf92f635436e9297a3/
+https://heisenbug.ru/archive/2025%20Spring/talks/7f52eca9919441b6b35d760f05ad59c7/
+https://heisenbug.ru/archive/2025%20Spring/talks/73a49776a44d4a72b2cece089d13b0e7/
+https://heisenbug.ru/archive/2025%20Spring/talks/83cca845a6954c92bd5d8ddad073111d/
+
+https://heisenbug.ru/archive/2025%20Spring/talks/c17559aa87124d849e6d1d729d34d39f/
+https://heisenbug.ru/archive/2025%20Spring/talks/a48d09e691524df5bd01499f472b2122/
+https://heisenbug.ru/archive/2025%20Spring/talks/68ebcece4e54407eaf4f7fad81cdee83/
+
+https://heisenbug.ru/archive/2025%20Spring/talks/a72850b009f04c97bbc8b6f18aadc9d0/
+https://heisenbug.ru/archive/2025%20Spring/talks/895b1370fcfe4c48988fd6a260149e55/
+https://heisenbug.ru/archive/2025%20Spring/talks/371f5c35f06d45fab5acefb211196cab/
+
+https://heisenbug.ru/archive/2025%20Spring/talks/8a2c469654104874a7bac049fc8c32a3/
+https://heisenbug.ru/archive/2025%20Spring/talks/826793bc8638482683c87deebdb83f67/
+
+
+# 2 day
+https://heisenbug.ru/archive/2025%20Spring/talks/10279e7b56dc4cbabb638034d5e7ffb8/
+
+https://heisenbug.ru/archive/2025%20Spring/talks/23183979e08948a6bc5e1ab76dd845d9/
+https://heisenbug.ru/archive/2025%20Spring/talks/330b71744b374b388ebc468e918fa4f5/
+https://heisenbug.ru/archive/2025%20Spring/talks/1befa8be4bd24c1790b8440b812d12a2/
+https://heisenbug.ru/archive/2025%20Spring/talks/afd50e64e0e04de69353d191795fd1b4/
+
+https://heisenbug.ru/archive/2025%20Spring/talks/2f023c42771843ff8efb2e9aeb9aa1e5/
+https://heisenbug.ru/archive/2025%20Spring/talks/27c9ceebffb54b18b3dc148c4e826c47/
+https://heisenbug.ru/archive/2025%20Spring/talks/1fad04c7489743f9bd8e1ae0c25cf5e8/
+https://heisenbug.ru/archive/2025%20Spring/talks/1f395b8e7e92475d8ec1e8997ba35091/
+
+https://heisenbug.ru/archive/2025%20Spring/talks/fbe3333e44db4fb4a7393fb9f41f0060/
+https://heisenbug.ru/archive/2025%20Spring/talks/1c9c8454ec12422ca2bbf005b1330841/
+https://heisenbug.ru/archive/2025%20Spring/talks/c05e91d7c9cf49e58348e32cd78a27bd/
+https://heisenbug.ru/archive/2025%20Spring/talks/a1945c8c409f446990d7807814b225f9/
+
+https://heisenbug.ru/archive/2025%20Spring/talks/11e4478983e94a4c95172068cb97663d/
+https://heisenbug.ru/archive/2025%20Spring/talks/3ef4e4684c95466f944407919e658bc6/
+https://heisenbug.ru/archive/2025%20Spring/talks/6bf77cb971c5448a8fedcfa790998b55/
+https://heisenbug.ru/archive/2025%20Spring/talks/e90e065cd7a249878a6571f665f3389b/
+
+https://heisenbug.ru/archive/2025%20Spring/talks/354a1dc249a14892872411699fa149fb/
+
+
+# HolyJS
+# 1 day
+
+# 2 day
+
+
+
+# Mobius
+# 1 day
+
+# 2 day
