@@ -2,12 +2,13 @@
 
 import tempfile
 from pathlib import Path
+
 import pytest
 
 from src.config import Config
 
 
-def test_config_default():
+def test_config_default() -> None:
     """Test default configuration creation."""
     config = Config()
     assert config.browser == "chrome"
@@ -17,7 +18,7 @@ def test_config_default():
     assert config.cookies_file is None
 
 
-def test_config_custom():
+def test_config_custom() -> None:
     """Test custom configuration creation."""
     config = Config(
         browser="edge",
@@ -33,7 +34,7 @@ def test_config_custom():
     assert config.cookies_file == Path("cookies.txt")
 
 
-def test_config_from_toml():
+def test_config_from_toml() -> None:
     """Test loading configuration from TOML."""
     toml_content = """
 browser = "brave"
@@ -42,11 +43,11 @@ output_root = "test_downloads"
 links_file = "test_links.txt"
 cookies_file = "test_cookies.txt"
 """
-    
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.toml', delete=False) as f:
+
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".toml", delete=False) as f:
         f.write(toml_content)
         f.flush()
-        
+
         try:
             config = Config.from_toml(Path(f.name), Path.cwd())
             assert config.browser == "brave"
@@ -58,22 +59,17 @@ cookies_file = "test_cookies.txt"
             Path(f.name).unlink()
 
 
-def test_config_validation_valid():
-    """Test validation of valid configuration."""
+def test_config_validation() -> None:
+    """Test configuration validation."""
+    # Test valid configuration
     config = Config(browser="chrome")
-    # Should not raise exception
-    config.validate()
+    config.validate()  # Should not raise exception
 
-
-def test_config_validation_invalid_browser():
-    """Test validation of invalid browser."""
+    # Test invalid browser
     config = Config(browser="invalid_browser")
     with pytest.raises(ValueError, match="Invalid browser"):
         config.validate()
 
-
-def test_config_validation_missing_cookies_file():
-    """Test validation with missing cookies file."""
+    # Test missing cookies file (should not raise exception)
     config = Config(cookies_file=Path("nonexistent_cookies.txt"))
-    # Should not raise exception, only warning
-    config.validate()
+    config.validate()  # Should not raise exception, only warning
