@@ -94,7 +94,11 @@ python main.py [URLs...] --browser chrome --browser-profile "Игорь" --outpu
 - Браузер с установленными куки (Chrome/Brave/Edge/Chromium)
 - FFmpeg (для обработки видео)
 
-## Структура проекта
+## Разработка
+
+Проект использует CI/CD с автоматическими проверками тестов и линтинга.
+
+### Структура проекта
 
 ```
 video_downloader/
@@ -114,6 +118,8 @@ video_downloader/
 │   ├── test_config.py
 │   ├── test_file_manager.py
 │   └── test_utils.py
+├── .github/           # GitHub workflows
+├── debug/             # Отладочные файлы (игнорируется git)
 └── README.md         # Документация
 ```
 
