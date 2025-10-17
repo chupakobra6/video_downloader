@@ -48,11 +48,27 @@ class BrowserProfileManager:
             return False
         profile_dir = self._base_path / dir_name
         if not profile_dir.exists():
+            logger.debug("Profile directory does not exist", extra={"profile": dir_name, "path": str(profile_dir)})
             return False
-        return (
-            (profile_dir / "Cookies").exists() or
-            (profile_dir / "Network" / "Cookies").exists()
+        
+        cookies_path1 = profile_dir / "Cookies"
+        cookies_path2 = profile_dir / "Network" / "Cookies"
+        has_cookies = cookies_path1.exists() or cookies_path2.exists()
+        
+        logger.debug(
+            "Cookie check result",
+            extra={
+                "profile": dir_name,
+                "path": str(profile_dir),
+                "cookies1": str(cookies_path1),
+                "cookies1_exists": cookies_path1.exists(),
+                "cookies2": str(cookies_path2),
+                "cookies2_exists": cookies_path2.exists(),
+                "has_cookies": has_cookies,
+            },
         )
+        
+        return has_cookies
     
     def _map_display_name_to_profile_dir(self, display_name: str) -> Optional[str]:
         """Сопоставить отображаемое имя профиля с директорией."""
@@ -124,23 +140,37 @@ class BrowserProfileManager:
     
     def find_profile_name(self, requested_profile: Optional[str]) -> Optional[str]:
         """Найти имя профиля для использования."""
+        logger.info(
+            "Finding profile name",
+            extra={
+                "browser": self.browser,
+                "requested_profile": requested_profile,
+                "base_path": str(self._base_path) if self._base_path else None,
+            },
+        )
+        
         if not self._base_path:
+            logger.info("No base path found, returning requested profile", extra={"profile": requested_profile})
             return requested_profile
             
         # Если указан профиль, попробуем прямой путь, затем сопоставление по имени
         if requested_profile:
             if self._has_cookies(requested_profile):
+                logger.info("Found direct profile match", extra={"profile": requested_profile})
                 return requested_profile
                 
             mapped = self._map_display_name_to_profile_dir(requested_profile)
             if mapped and self._has_cookies(mapped):
+                logger.info("Found mapped profile", extra={"requested": requested_profile, "mapped": mapped})
                 return mapped
         
         # Fallback к стандартным профилям
         for candidate in ["Default", "Profile 1", "Profile 2", "Profile 3"]:
             if self._has_cookies(candidate):
+                logger.info("Found fallback profile", extra={"profile": candidate})
                 return candidate
                 
+        logger.warning("No profile found with cookies", extra={"browser": self.browser})
         return None
     
     def get_profile_info(self, profile_name: Optional[str]) -> dict:

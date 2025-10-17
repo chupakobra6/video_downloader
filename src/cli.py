@@ -23,10 +23,10 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     )
     parser.add_argument(
         "inputs",
-        nargs="+",
+        nargs="*",
         help=(
             "List of URLs and/or paths to text files with URLs (one per line). "
-            "Files are detected by existing paths."
+            "Files are detected by existing paths. If not provided, uses links_file from config."
         ),
     )
     parser.add_argument(
@@ -101,7 +101,12 @@ def main(argv: Optional[list[str]] = None) -> None:
         config.validate()
         
         # Разрешение URL
-        urls = resolve_urls(args.inputs)
+        if args.inputs:
+            urls = resolve_urls(args.inputs)
+        else:
+            # Используем файл ссылок из конфигурации
+            urls = read_links_file(config.links_file)
+            
         valid_urls = validate_urls(urls)
         
         if not valid_urls:

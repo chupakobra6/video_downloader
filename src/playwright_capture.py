@@ -115,6 +115,7 @@ class PlaywrightCapture:
                 
         return False, None
     
+    
     async def capture_stream_manifest(
         self,
         page_url: str,
@@ -128,59 +129,94 @@ class PlaywrightCapture:
             
         logger.info("START capture_stream_manifest", extra={"url": page_url, "timeout": wait_timeout_sec})
         
-        # Маппинг браузера на Playwright channel
-        channel: Optional[str] = None
-        match browser:
-            case "chrome":
-                channel = "chrome"
-            case "edge":
-                channel = "msedge"
-        
-        base = self._get_chrome_like_base(browser)
-        user_data_dir: Optional[Path] = base if base and base.exists() else None
-        
-        launch_args: list[str] = []
-        if resolved_profile:
-            launch_args.append(f"--profile-directory={resolved_profile}")
-        
         try:
             async with async_playwright() as p:
-                context = None
-                
-                # Попытка использовать системный браузер с профилем
-                if channel and user_data_dir is not None:
-                    try:
-                        context = await p.chromium.launch_persistent_context(
-                            user_data_dir=str(user_data_dir),
-                            channel=channel,
-                            headless=False,
-                            args=[
-                                "--autoplay-policy=no-user-gesture-required",
-                                *launch_args,
-                            ],
-                        )
-                    except Exception as e:
-                        logger.warning("Failed to launch system browser", extra={"error": str(e)})
-                        context = None
-                
-                # Fallback на bundled chromium
-                if context is None:
-                    context = await p.chromium.launch_persistent_context(
-                        user_data_dir=str(Path.cwd() / ".pw-temp-profile"),
-                        headless=False,
-                        args=["--autoplay-policy=no-user-gesture-required"],
-                    )
+                # Простой запуск bundled chromium без профилей
+                logger.info("Launching bundled chromium for manifest capture")
+                context = await p.chromium.launch_persistent_context(
+                    user_data_dir=str(Path.cwd() / ".pw-temp-profile"),
+                    headless=False,
+                    args=[
+                        "--autoplay-policy=no-user-gesture-required",
+                        "--disable-web-security",
+                        "--disable-features=VizDisplayCompositor",
+                        # Убираем флаги автоматизации
+                        "--disable-blink-features=AutomationControlled",
+                        "--disable-dev-shm-usage",
+                        "--no-sandbox",
+                        "--disable-setuid-sandbox",
+                        "--disable-gpu",
+                        "--disable-extensions",
+                        "--disable-plugins",
+                        "--disable-images",
+                        "--disable-default-apps",
+                        "--disable-background-timer-throttling",
+                        "--disable-backgrounding-occluded-windows",
+                        "--disable-renderer-backgrounding",
+                        "--disable-features=TranslateUI",
+                        "--disable-ipc-flooding-protection",
+                        "--no-first-run",
+                        "--no-default-browser-check",
+                        "--disable-hang-monitor",
+                        "--disable-prompt-on-repost",
+                        "--disable-sync",
+                        "--disable-background-networking",
+                        "--disable-client-side-phishing-detection",
+                        "--disable-component-update",
+                        "--disable-domain-reliability",
+                        "--disable-features=AudioServiceOutOfProcess",
+                        "--disable-features=VizDisplayCompositor",
+                        "--disable-features=WebRtcHideLocalIpsWithMdns",
+                        "--disable-features=WebRtcUseMinMaxVEADimensions",
+                        "--disable-logging",
+                        "--disable-permissions-api",
+                        "--disable-presentation-api",
+                        "--disable-print-preview",
+                        "--disable-speech-api",
+                        "--hide-scrollbars",
+                        "--mute-audio",
+                        "--no-zygote",
+                        "--use-mock-keychain",
+                        "--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    ],
+                )
+                logger.info("Successfully launched bundled chromium")
                 
                 page = await context.new_page()
                 
-                # Настройка для автоплей
-                try:
-                    await page.add_init_script("""
-                        Object.defineProperty(document, 'visibilityState', {get: () => 'visible'});
-                        Object.defineProperty(document, 'hidden', {get: () => false});
-                    """)
-                except Exception:
-                    pass
+                # Маскируем автоматизацию
+                await page.add_init_script("""
+                    // Убираем webdriver флаг
+                    Object.defineProperty(navigator, 'webdriver', {
+                        get: () => undefined,
+                    });
+                    
+                    // Маскируем автоматизацию
+                    window.chrome = {
+                        runtime: {},
+                    };
+                    
+                    // Убираем automation флаги
+                    Object.defineProperty(navigator, 'plugins', {
+                        get: () => [1, 2, 3, 4, 5],
+                    });
+                    
+                    Object.defineProperty(navigator, 'languages', {
+                        get: () => ['en-US', 'en'],
+                    });
+                    
+                    // Маскируем permissions
+                    const originalQuery = window.navigator.permissions.query;
+                    window.navigator.permissions.query = (parameters) => (
+                        parameters.name === 'notifications' ?
+                            Promise.resolve({ state: Notification.permission }) :
+                            originalQuery(parameters)
+                    );
+                    
+                    // Настройка для автоплей
+                    Object.defineProperty(document, 'visibilityState', {get: () => 'visible'});
+                    Object.defineProperty(document, 'hidden', {get: () => false});
+                """)
                 
                 # Захват манифеста
                 found: asyncio.Future[Tuple[str, dict[str, str]]] = asyncio.get_event_loop().create_future()
@@ -271,47 +307,160 @@ class PlaywrightCapture:
             
         logger.info("START attempt_browser_download", extra={"url": url, "timeout": wait_timeout_sec})
         
-        # Маппинг браузера на Playwright channel
-        channel: Optional[str] = None
-        match browser:
-            case "chrome":
-                channel = "chrome"
-            case "edge":
-                channel = "msedge"
-        
-        base = self._get_chrome_like_base(browser)
-        user_data_dir: Optional[Path] = base if base and base.exists() else None
-        
-        launch_args: list[str] = []
-        if resolved_profile:
-            launch_args.append(f"--profile-directory={resolved_profile}")
-        
         try:
             async with async_playwright() as p:
-                context = None
-                
-                # Попытка использовать системный браузер
-                if channel and user_data_dir is not None:
-                    try:
-                        context = await p.chromium.launch_persistent_context(
-                            user_data_dir=str(user_data_dir),
-                            channel=channel,
-                            headless=False,
-                            args=[*launch_args],
-                        )
-                    except Exception as e:
-                        logger.warning("Failed to launch system browser", extra={"error": str(e)})
-                        context = None
-                
-                # Fallback на bundled chromium
-                if context is None:
-                    context = await p.chromium.launch_persistent_context(
-                        user_data_dir=str(Path.cwd() / ".pw-temp-profile"),
-                        headless=False,
-                    )
+                # Простой запуск bundled chromium без профилей и куки
+                logger.info("Launching bundled chromium for manual login")
+                context = await p.chromium.launch_persistent_context(
+                    user_data_dir=str(Path.cwd() / ".pw-temp-profile"),
+                    headless=False,
+                    args=[
+                        "--disable-web-security",
+                        "--disable-features=VizDisplayCompositor",
+                        "--autoplay-policy=no-user-gesture-required",
+                        # Убираем флаги автоматизации
+                        "--disable-blink-features=AutomationControlled",
+                        "--disable-dev-shm-usage",
+                        "--no-sandbox",
+                        "--disable-setuid-sandbox",
+                        "--disable-gpu",
+                        "--disable-extensions",
+                        "--disable-plugins",
+                        "--disable-images",
+                        "--disable-default-apps",
+                        "--disable-background-timer-throttling",
+                        "--disable-backgrounding-occluded-windows",
+                        "--disable-renderer-backgrounding",
+                        "--disable-features=TranslateUI",
+                        "--disable-ipc-flooding-protection",
+                        "--no-first-run",
+                        "--no-default-browser-check",
+                        "--disable-hang-monitor",
+                        "--disable-prompt-on-repost",
+                        "--disable-sync",
+                        "--disable-background-networking",
+                        "--disable-client-side-phishing-detection",
+                        "--disable-component-update",
+                        "--disable-domain-reliability",
+                        "--disable-features=AudioServiceOutOfProcess",
+                        "--disable-features=VizDisplayCompositor",
+                        "--disable-features=WebRtcHideLocalIpsWithMdns",
+                        "--disable-features=WebRtcUseMinMaxVEADimensions",
+                        "--disable-logging",
+                        "--disable-permissions-api",
+                        "--disable-presentation-api",
+                        "--disable-print-preview",
+                        "--disable-speech-api",
+                        "--hide-scrollbars",
+                        "--mute-audio",
+                        "--no-zygote",
+                        "--use-mock-keychain",
+                        "--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    ],
+                )
+                logger.info("Successfully launched bundled chromium")
                 
                 page = await context.new_page()
+                
+                # Маскируем автоматизацию
+                await page.add_init_script("""
+                    // Убираем webdriver флаг
+                    Object.defineProperty(navigator, 'webdriver', {
+                        get: () => undefined,
+                    });
+                    
+                    // Маскируем автоматизацию
+                    window.chrome = {
+                        runtime: {},
+                    };
+                    
+                    // Убираем automation флаги
+                    Object.defineProperty(navigator, 'plugins', {
+                        get: () => [1, 2, 3, 4, 5],
+                    });
+                    
+                    Object.defineProperty(navigator, 'languages', {
+                        get: () => ['en-US', 'en'],
+                    });
+                    
+                    // Маскируем permissions
+                    const originalQuery = window.navigator.permissions.query;
+                    window.navigator.permissions.query = (parameters) => (
+                        parameters.name === 'notifications' ?
+                            Promise.resolve({ state: Notification.permission }) :
+                            originalQuery(parameters)
+                    );
+                """)
+                
+                # Переходим на страницу - пользователь может войти вручную
+                logger.info("Opening page for manual login", extra={"url": url})
                 await page.goto(url, wait_until="domcontentloaded")
+                
+                # Сохраняем HTML разметку для диагностики
+                try:
+                    html_content = await page.content()
+                    html_file = Path.cwd() / "debug" / "page_debug.html"
+                    html_file.write_text(html_content, encoding="utf-8")
+                    logger.info("Saved page HTML for debugging", extra={"file": str(html_file)})
+                except Exception as e:
+                    logger.warning("Failed to save page HTML", extra={"error": str(e)})
+                
+                # Ждем появления видео на странице (означает успешный вход)
+                logger.info("Waiting for video to appear on page (indicates successful login)...")
+                try:
+                    # Ждем появления видео элемента
+                    await page.wait_for_selector("video", timeout=60000)  # 60 секунд на вход
+                    logger.info("Video found on page - user is logged in")
+                    
+                    # Сохраняем HTML после появления видео
+                    try:
+                        html_content = await page.content()
+                        html_file = Path.cwd() / "debug" / "page_with_video_debug.html"
+                        html_file.write_text(html_content, encoding="utf-8")
+                        logger.info("Saved page HTML with video for debugging", extra={"file": str(html_file)})
+                    except Exception as e:
+                        logger.warning("Failed to save page HTML with video", extra={"error": str(e)})
+                    
+                    # Пытаемся запустить воспроизведение
+                    try:
+                        await page.evaluate("""
+                            const videos = document.querySelectorAll('video');
+                            for (const video of videos) {
+                                video.muted = true;
+                                video.play().catch(() => {});
+                            }
+                        """)
+                        logger.info("Attempted to start video playback")
+                    except Exception as e:
+                        logger.warning("Failed to start video playback", extra={"error": str(e)})
+                        
+                except Exception as e:
+                    logger.warning("No video found on page", extra={"error": str(e)})
+                    # Продолжаем в любом случае - возможно видео появится позже
+                
+                # Проверяем состояние видео перед попыткой скачивания
+                try:
+                    video_info = await page.evaluate("""
+                        const videos = document.querySelectorAll('video');
+                        const info = [];
+                        for (const video of videos) {
+                            info.push({
+                                src: video.src,
+                                currentSrc: video.currentSrc,
+                                readyState: video.readyState,
+                                networkState: video.networkState,
+                                paused: video.paused,
+                                ended: video.ended,
+                                duration: video.duration,
+                                currentTime: video.currentTime,
+                                poster: video.poster
+                            });
+                        }
+                        return info;
+                    """)
+                    logger.info("Video state before download attempt", extra={"video_info": video_info})
+                except Exception as e:
+                    logger.warning("Failed to get video state", extra={"error": str(e)})
                 
                 logger.info("Waiting for browser download", extra={"timeout_sec": wait_timeout_sec})
                 
@@ -345,17 +494,21 @@ class PlaywrightCapture:
                                 try:
                                     el = await frame_obj.query_selector(sel)
                                     if el:
+                                        logger.info("Found download button", extra={"selector": sel, "frame": "iframe" if target_frame else "main"})
                                         await el.click(timeout=2000)
                                         return True
-                                except Exception:
+                                except Exception as e:
+                                    logger.debug("Failed to click button", extra={"selector": sel, "error": str(e)})
                                     continue
                             return False
                         
                         # Клик в iframe или основной странице
                         clicked = False
                         if target_frame is not None:
+                            logger.info("Trying to click download button in iframe")
                             clicked = await _click_in(target_frame)
                         if not clicked:
+                            logger.info("Trying to click download button in main page")
                             clicked = await _click_in(page)
                         
                         # Попытка клика по ссылке скачивания
@@ -363,12 +516,14 @@ class PlaywrightCapture:
                             try:
                                 link = await target_frame.query_selector("a[download], a[href*='.mp4']")
                                 if link:
+                                    logger.info("Found download link in iframe")
                                     await link.click(timeout=2000)
                                     clicked = True
-                            except Exception:
-                                pass
+                            except Exception as e:
+                                logger.debug("Failed to click download link", extra={"error": str(e)})
                         
                         if not clicked:
+                            logger.info("No download button found, waiting for manual click")
                             # Дать пользователю время для ручного клика
                             try:
                                 await page.wait_for_timeout(1500)
