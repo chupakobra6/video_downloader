@@ -6,3 +6,4 @@ requests==2.32.3
 # Development Dependencies
 pytest>=7.0.0
 pytest-cov>=4.0.0
+flake8>=6.0.0
