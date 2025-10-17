@@ -2,19 +2,9 @@
 
 import tempfile
 from pathlib import Path
-from typing import Generator
 from unittest.mock import Mock, patch
 
-import pytest
-
 from src.downloader import VideoDownloader
-
-
-@pytest.fixture  # type: ignore[misc]
-def mock_playwright() -> Generator[Mock, None, None]:
-    """Mock PlaywrightCapture to prevent browser startup."""
-    with patch("src.downloader.PlaywrightCapture") as mock:
-        yield mock
 
 
 @patch("src.downloader.PlaywrightCapture")
