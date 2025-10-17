@@ -14,5 +14,3 @@ links_file = "links.txt"
 # Optional: path to cookies.txt (Netscape format). If set, it overrides browser cookies lookup.
 # For Chrome, export via extension "Get cookies.txt" while logged in on the site.
 # cookies_file = "cookies.txt"
-
-
