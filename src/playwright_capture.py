@@ -227,8 +227,11 @@ class PlaywrightCapture:
                         if any(s in req_url for s in [".m3u8", ".mpd", "format=m3u8"]):
                             if not found.done():
                                 found.set_result((req_url, headers))
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(
+                            "Failed to set manifest candidate",
+                            extra={"req_url": req_url, "error": str(e)},
+                        )
 
                 page.on(
                     "request", lambda request: _maybe_set(request.url, request.headers)
@@ -243,8 +246,11 @@ class PlaywrightCapture:
                         ):
                             req = response.request
                             _maybe_set(url, req.headers)
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(
+                            "Response inspection failed",
+                            extra={"error": str(e)},
+                        )
 
                 page.on("response", on_response)
 
@@ -254,8 +260,8 @@ class PlaywrightCapture:
                 page_title: Optional[str] = None
                 try:
                     page_title = await page.title()
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug("Failed to get page title", extra={"error": str(e)})
 
                 # Attempt to start playback
                 selectors = [
@@ -269,7 +275,11 @@ class PlaywrightCapture:
                         el = await page.query_selector(sel)
                         if el:
                             await el.click(timeout=2000)
-                    except Exception:
+                    except Exception as e:
+                        logger.debug(
+                            "Auto-play click attempt failed",
+                            extra={"selector": sel, "error": str(e)},
+                        )
                         continue
 
                 # Programmatic video start
@@ -280,8 +290,11 @@ class PlaywrightCapture:
                         if (v) { v.muted = true; v.play().catch(()=>{}); }
                     """
                     )
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(
+                        "Programmatic play evaluation failed",
+                        extra={"error": str(e)},
+                    )
 
                 try:
                     logger.info(
@@ -596,8 +609,11 @@ class PlaywrightCapture:
                             # Give user time for manual click
                             try:
                                 await page.wait_for_timeout(1500)
-                            except Exception:
-                                pass
+                            except Exception as e:
+                                logger.debug(
+                                    "Wait for manual click failed",
+                                    extra={"error": str(e)},
+                                )
 
                     download = await dl_info.value
                     suggested = download.suggested_filename or "download.bin"

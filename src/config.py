@@ -28,7 +28,7 @@ class Config:
             with config_path.open("rb") as f:
                 cfg: dict[str, Any] = tomllib.load(f)
         except Exception as e:
-            logger.error(
+            logger.exception(
                 "Failed to load config",
                 extra={"path": str(config_path), "error": str(e)},
             )

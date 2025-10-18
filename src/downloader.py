@@ -223,11 +223,12 @@ class VideoDownloader:
 
     def download_videos(self, urls: Iterable[str], base_output_dir: Path) -> None:
         """Download multiple videos."""
-        logger.info("START download_videos", extra={"count": len(list(urls))})
+        urls_list = list(urls)
+        logger.info("START download_videos", extra={"count": len(urls_list)})
 
         downloaded_files: dict[str, list[str]] = {}
 
-        for url in urls:
+        for url in urls_list:
             url = url.strip()
             if not url:
                 continue
