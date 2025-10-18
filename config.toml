@@ -1,8 +1,5 @@
 # Downloader settings
-# Browser to read cookies from. Options: chrome, brave, edge, chromium, safari
-browser = "chrome"
-
-# Browser profile name. On macOS Chrome this is usually "Default" or "Profile 1"
+# Chrome profile name. On macOS Chrome this is usually "Default" or "Profile 1"
 browser_profile = "Игорь"
 
 # Root directory for downloads (relative to project root allowed)
@@ -10,9 +7,3 @@ output_root = "downloads"
 
 # File with links to download (one URL per line). Relative to project root allowed
 links_file = "links.txt"
-
-# Optional: path to cookies.txt (Netscape format). If set, it overrides browser cookies lookup.
-# For Chrome, export via extension "Get cookies.txt" while logged in on the site.
-# cookies_file = "cookies.txt"
-
-

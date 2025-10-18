@@ -1,4 +1,4 @@
-"""CLI интерфейс для video_downloader."""
+"""CLI interface for video_downloader."""
 
 import argparse
 import logging
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
-    """Парсинг аргументов командной строки."""
+    """Parse command line arguments."""
     parser = argparse.ArgumentParser(
         description=(
             "Download authenticated videos with yt-dlp using your browser cookies. "
@@ -23,18 +23,14 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     )
     parser.add_argument(
         "inputs",
-        nargs="+",
+        nargs="*",
         help=(
             "List of URLs and/or paths to text files with URLs (one per line). "
-            "Files are detected by existing paths."
+            "Files are detected by existing paths. If not provided, "
+            "uses links_file from config."
         ),
     )
-    parser.add_argument(
-        "--browser",
-        default="chrome",
-        choices=["chrome", "brave", "edge", "chromium", "safari"],
-        help="Browser to read cookies from (must be logged in).",
-    )
+    # Browser is fixed to Chrome - no need for selection
     parser.add_argument(
         "--browser-profile",
         default=None,
@@ -60,7 +56,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 
 def resolve_urls(inputs: list[str]) -> list[str]:
-    """Разрешить входные данные в список URL."""
+    """Resolve input data to a list of URLs."""
     urls: list[str] = []
     for item in inputs:
         path = Path(item)
@@ -73,62 +69,66 @@ def resolve_urls(inputs: list[str]) -> list[str]:
 
 
 def main(argv: Optional[list[str]] = None) -> None:
-    """Главная функция CLI."""
+    """Main CLI function."""
     args = parse_args(sys.argv[1:] if argv is None else argv)
-    
-    # Настройка логирования
+
+    # Configure logging
     log_level = logging.DEBUG if args.verbose else logging.INFO
     configure_logging(log_level)
-    
+
     logger.info("START cli_main")
-    
+
     try:
-        # Загрузка конфигурации
+        # Load configuration
         config_path = Path(args.config)
         project_root = Path.cwd()
-        
+
         if config_path.exists():
             config = Config.from_toml(config_path, project_root)
         else:
-            logger.info("Config file not found, using defaults", extra={"path": str(config_path)})
+            logger.info(
+                "Config file not found, using defaults",
+                extra={"path": str(config_path)},
+            )
             config = Config(
-                browser=args.browser,
                 browser_profile=args.browser_profile,
                 output_root=Path(args.output_root),
             )
-        
-        # Валидация конфигурации
+
+        # Validate configuration
         config.validate()
-        
-        # Разрешение URL
-        urls = resolve_urls(args.inputs)
+
+        # Resolve URLs
+        if args.inputs:
+            urls = resolve_urls(args.inputs)
+        else:
+            # Use links file from configuration
+            urls = read_links_file(config.links_file)
+
         valid_urls = validate_urls(urls)
-        
+
         if not valid_urls:
             logger.info("No valid URLs to download")
             return
-        
+
         logger.info(
             "Starting downloads",
             extra={
-                "browser": config.browser,
                 "profile": config.browser_profile,
                 "output_root": str(config.output_root),
                 "count": len(valid_urls),
             },
         )
-        
-        # Скачивание
+
+        # Download
         downloader = VideoDownloader(
-            browser=config.browser,
             browser_profile=config.browser_profile,
-            cookies_file=config.cookies_file,
         )
-        
+
         downloader.download_videos(valid_urls, config.output_root)
-        
+
         logger.info("DONE cli_main")
-        
+
     except Exception as e:
         logger.exception("FAIL cli_main", extra={"error": str(e)})
         sys.exit(1)

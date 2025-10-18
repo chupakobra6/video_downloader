@@ -1,4 +1,4 @@
-"""Утилиты для работы с файлами и URL."""
+"""Utilities for working with files and URLs."""
 
 import logging
 from pathlib import Path
@@ -8,12 +8,14 @@ logger = logging.getLogger(__name__)
 
 
 def read_links_file(path: Path) -> list[str]:
-    """Прочитать файл с ссылками."""
+    """Read links file."""
     if not path.exists():
-        logger.info("Links file not found, creating template", extra={"path": str(path)})
+        logger.info(
+            "Links file not found, creating template", extra={"path": str(path)}
+        )
         path.write_text("# Add your URLs here, one per line\n", encoding="utf-8")
         return []
-    
+
     lines = path.read_text(encoding="utf-8").splitlines()
     return [
         line.strip()
@@ -23,7 +25,7 @@ def read_links_file(path: Path) -> list[str]:
 
 
 def configure_logging(level: int = logging.INFO) -> None:
-    """Настроить логирование."""
+    """Configure logging."""
     logging.basicConfig(
         level=level,
         format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
@@ -31,7 +33,7 @@ def configure_logging(level: int = logging.INFO) -> None:
 
 
 def validate_urls(urls: Iterable[str]) -> list[str]:
-    """Валидировать и очистить список URL."""
+    """Validate and clean URL list."""
     valid_urls = []
     for url in urls:
         url = url.strip()

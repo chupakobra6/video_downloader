@@ -1,1 +1,1 @@
-"""Тесты для video_downloader."""
+"""Tests for video_downloader."""

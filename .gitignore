@@ -198,6 +198,12 @@ downloads/
 cookies.txt
 titles.txt
 
+# Debug files
+debug/
+*_debug.html
+page_debug.html
+page_with_video_debug.html
+
 # Logs
 *.log
 logs/

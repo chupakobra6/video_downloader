@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Главная точка входа для video_downloader."""
+"""Main entry point for video_downloader."""
 
 from src.cli import main
 
