@@ -3,7 +3,7 @@
 import logging
 import tomllib
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -13,11 +13,9 @@ class Config:
 
     def __init__(
         self,
-        browser_profile: Optional[str] = None,
         output_root: Path = Path("downloads"),
         links_file: Path = Path("links.txt"),
     ):
-        self.browser_profile = browser_profile
         self.output_root = output_root
         self.links_file = links_file
 
@@ -34,7 +32,6 @@ class Config:
             )
             raise ValueError(f"Invalid config file: {e}") from e
 
-        browser_profile: Optional[str] = cfg.get("browser_profile")
         output_root: Path = Path(cfg.get("output_root", "downloads"))
         links_file: str = cfg.get("links_file", "links.txt")
 
@@ -45,7 +42,6 @@ class Config:
         )
 
         return cls(
-            browser_profile=browser_profile,
             output_root=output_root,
             links_file=links_path,
         )
@@ -55,7 +51,6 @@ class Config:
         logger.info(
             "Configuration loaded",
             extra={
-                "profile": self.browser_profile,
                 "output_root": str(self.output_root),
                 "links_file": str(self.links_file),
             },

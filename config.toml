@@ -1,7 +1,4 @@
 # Downloader settings
-# Chrome profile name. On macOS Chrome this is usually "Default" or "Profile 1"
-browser_profile = "Игорь"
-
 # Root directory for downloads (relative to project root allowed)
 output_root = "downloads"
 

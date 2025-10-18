@@ -1,4 +1,4 @@
-"""CLI interface for video_downloader."""
+"""Simple CLI interface."""
 
 import argparse
 import logging
@@ -16,25 +16,12 @@ logger = logging.getLogger(__name__)
 def parse_args(argv: list[str]) -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        description=(
-            "Download authenticated videos with yt-dlp using your browser cookies. "
-            "Outputs to downloads/<domain>/"
-        )
+        description="Download videos with yt-dlp using Chrome cookies."
     )
     parser.add_argument(
         "inputs",
         nargs="*",
-        help=(
-            "List of URLs and/or paths to text files with URLs (one per line). "
-            "Files are detected by existing paths. If not provided, "
-            "uses links_file from config."
-        ),
-    )
-    # Browser is fixed to Chrome - no need for selection
-    parser.add_argument(
-        "--browser-profile",
-        default=None,
-        help="Optional browser profile name (e.g. 'Default', 'Profile 1').",
+        help="URLs to download. If not provided, uses links_file from config.",
     )
     parser.add_argument(
         "--output-root",
@@ -91,7 +78,6 @@ def main(argv: Optional[list[str]] = None) -> None:
                 extra={"path": str(config_path)},
             )
             config = Config(
-                browser_profile=args.browser_profile,
                 output_root=Path(args.output_root),
             )
 
@@ -114,17 +100,13 @@ def main(argv: Optional[list[str]] = None) -> None:
         logger.info(
             "Starting downloads",
             extra={
-                "profile": config.browser_profile,
                 "output_root": str(config.output_root),
                 "count": len(valid_urls),
             },
         )
 
         # Download
-        downloader = VideoDownloader(
-            browser_profile=config.browser_profile,
-        )
-
+        downloader = VideoDownloader()
         downloader.download_videos(valid_urls, config.output_root)
 
         logger.info("DONE cli_main")

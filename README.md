@@ -6,7 +6,6 @@ Standalone tool for downloading videos from conferences and platforms that requi
 
 - Download videos from conference websites (JPoint, Heisenbug, HolyJS, Mobius)
 - Use Chrome browser cookies for authentication
-- Automatic Chrome profile detection
 - DRM bypass through official download links
 - HLS/DASH stream support
 - Resume interrupted downloads
@@ -24,19 +23,12 @@ cd video_downloader
 pip install -r requirements.txt
 ```
 
-3. Install browsers for Playwright (optional):
-```bash
-playwright install chromium
-```
 
 ## Configuration
 
 Edit `config.toml`:
 
 ```toml
-# Chrome profile (e.g., "Default", "Profile 1")
-browser_profile = "Default"
-
 # Root directory for downloads
 output_root = "downloads"
 
@@ -61,7 +53,7 @@ https://heisenbug.ru/archive/2025%20Spring/talks/example-id/
 python main.py
 
 # With command line arguments
-python main.py https://example.com/video/ --browser-profile "Default"
+python main.py https://example.com/video/
 
 # Via Python module
 python -m src.cli https://example.com/video/
@@ -70,7 +62,7 @@ python -m src.cli https://example.com/video/
 ### CLI parameters
 
 ```bash
-python main.py [URLs...] --browser-profile "Default" --output-root downloads/
+python main.py [URLs...] --output-root downloads/
 ```
 
 ## Supported platforms
@@ -89,7 +81,7 @@ python main.py [URLs...] --browser-profile "Default" --output-root downloads/
 
 ## Development
 
-The project uses CI/CD with automatic test and linting checks.
+The project uses CI/CD with automatic linting checks.
 
 ### Project structure
 
@@ -101,16 +93,10 @@ video_downloader/
 ├── requirements.txt   # Dependencies
 ├── src/               # Source code
 │   ├── config.py      # Configuration management
-│   ├── browser.py     # Browser profiles
 │   ├── downloader.py  # Main download logic
 │   ├── file_manager.py # File management
-│   ├── playwright_capture.py # Browser download
 │   ├── utils.py       # Utility functions
 │   └── cli.py         # CLI interface
-├── tests/             # Tests
-│   ├── test_config.py
-│   ├── test_file_manager.py
-│   └── test_utils.py
 ├── .github/           # GitHub workflows
 ├── debug/             # Debug files (ignored by git)
 └── README.md         # Documentation
@@ -118,27 +104,18 @@ video_downloader/
 
 ## Algorithm
 
-1. **Trial download**: Attempt via yt-dlp with browser cookies
-2. **Manifest capture**: If not supported, use Playwright to capture HLS/DASH manifest
-3. **DRM detection**: Heuristic detection of content protection
-4. **Official download**: When DRM is detected - switch to official download stream via browser
-5. **Processing**: FFmpeg for final processing and optimization
+1. **Download**: Attempt via yt-dlp with browser cookies
+2. **Processing**: FFmpeg for final processing and optimization
 
 ## Troubleshooting
 
 ### Cookie issues
 - Make sure you're logged in to Chrome on the target site
-- Check the Chrome profile correctness in `config.toml`
-- Ensure Chrome profile has access to the target site
+- The tool uses Chrome cookies for authentication
 
 ### DRM issues
-- The tool automatically switches to official download
-- Make sure you have download access on the site
 - Some videos may be unavailable for download
-
-### Playwright issues
-- Install browsers: `playwright install chromium`
-- Check Chrome profile access permissions
+- Make sure you have download access on the site
 
 ## License
 
